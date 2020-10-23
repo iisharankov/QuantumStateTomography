@@ -32,16 +32,19 @@ def change_basis(circ, basis):
     :param basis: float, 'x' for x basis, 'y' for y basis, anything else for z basis
     :return: statevect: an array of floats
     """
+
+    circ_copy = circ.copy()
+
     if basis == 'x':
-        circ.ry(-np.pi / 2, (0, 1))  # change basis to x
+        circ_copy.ry(-np.pi / 2, (0, 1))  # change basis to x
 
     elif basis == 'y':
-        circ.rx(np.pi / 2, (0, 1))  # change basis to y
+        circ_copy.rx(np.pi / 2, (0, 1))  # change basis to y
 
     backend = qiskit.Aer.get_backend('statevector_simulator')  # get simulator
-    job = execute(circ, backend)
+    job = execute(circ_copy, backend)
     result = job.result()
-    statevect = result.get_statevector(circ)  # state_vector
+    statevect = result.get_statevector(circ_copy)  # state_vector
 
     return statevect
 
@@ -55,8 +58,9 @@ def measure(state_vect, shots=1000):
     :return: dictionary with measured state and frequency of measurements
     """
     states = ['00', '01', '10', '11']
-    prob_vect = np.sqrt(state_vect * np.conj(state_vect))
+    prob_vect = state_vect * np.conj(state_vect)
     prob_vect = [float(i) for i in prob_vect]
+    print(prob_vect)
     measurements = np.random.multinomial(shots, prob_vect)
 
     results = {}
@@ -67,23 +71,25 @@ def measure(state_vect, shots=1000):
 
 
 def main():
-    psi, circ = random_state_gen()  # generated state vector in z and the associated circuit
-
-    print(psi)
-    print(circ)
-
-    results_z = measure(psi)
-    print(results_z)
-
-    psi_x = change_basis(circ, 'x')
-    print(circ)
-    results_x = measure(psi_x)
-    print(results_x)
-
-    psi_y = change_basis(circ, 'x')
-    print(circ)
-    results_y = measure(psi_y)
-    print(results_y)
+    # psi, circ = random_state_gen()  # generated state vector in z and the associated circuit
+    #
+    # print(psi)
+    # results_z = measure(psi)
+    # print(results_z)
+    #
+    # print('\n \n -------------------- \n')
+    #
+    # psi_x = change_basis(circ, 'x')
+    # print(psi_x)
+    # results_x = measure(psi_x)
+    # print(results_x)
+    #
+    # print('\n \n -------------------- \n')
+    #
+    # psi_y = change_basis(circ, 'y')
+    # print(psi_y)
+    # results_y = measure(psi_y)
+    # print(results_y)
 
     return
 
