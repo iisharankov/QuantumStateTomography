@@ -15,31 +15,23 @@ def construct_variational_circ(theta, num_qbits=5, debug=False):
     var_circ = qiskit.QuantumCircuit(num_qbits)
     lst_qbits = range(num_qbits)
 
-    for layer in range(circ_depth - 1):  # exclude the last layer !
+    for layer in range(circ_depth - 1):
+        for qbit in range(len(lst_qbits)):
 
-        if (layer + 1) % 2 == 1:  # odd layer
-            for qbit in lst_qbits:
+            # Compute if layer is odd or even to apply rx or ry gate to circuit
+            is_odd_step = (layer + 1)% 2
+            if is_odd_step:
                 var_circ.rx(theta[layer][qbit], qbit)
-
-            for qbit in lst_qbits:
-                if qbit == num_qbits - 1:  # the last one
-                    pass
-
-                elif qbit % 2 == 0:
-                    var_circ.cx(qbit, qbit + 1)
-
-        else:  # even layer
-            for qbit in lst_qbits:
+            else:
                 var_circ.ry(theta[layer][qbit], qbit)
 
-            for qbit in lst_qbits:
-                if qbit == num_qbits - 1:  # the last one
-                    pass
+            # Apply a cx gate AFTER first 3 qbits processed
+            if qbit % 2 == 0 and qbit != 0 :
 
-                elif qbit % 2 == 1:
-                    var_circ.cx(qbit, qbit + 1)
+                # isOddStep may subtract 1 if True, to correctly apply cx gate location
+                var_circ.cx(qbit - is_odd_step - 1, qbit - is_odd_step )
 
-    for qbit in lst_qbits:  # bonus layer at the end only has rx gates
+    for qbit in lst_qbits:  # bonus layer at the end only has rx gates and no cx
         var_circ.rx(theta[circ_depth - 1][qbit], qbit)
 
     if debug:
@@ -84,6 +76,9 @@ def main():
     # fidelity2 = compute_fidelity(psi, psi)
     # print(fidelity2)
 
+
+    theta = qml_main.initialize_theta(num_qbits=5)
+    circ = construct_variational_circ(theta, num_qbits=5, debug=True)
     return
 
 
