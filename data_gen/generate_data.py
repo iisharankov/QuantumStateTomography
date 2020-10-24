@@ -1,6 +1,7 @@
 # Main file for generating data
 from qiskit import *
 import numpy as np
+import random
 
 
 def random_state_gen(alpha=np.pi/2):
@@ -49,7 +50,7 @@ def change_basis(circ, basis):
     return statevect
 
 
-def measure(state_vect, shots=1000):
+def measure(state_vect, shots=1_000_000):
     """
     Make measurements along the z basis
 
@@ -60,38 +61,44 @@ def measure(state_vect, shots=1000):
     states = ['00', '01', '10', '11']
     prob_vect = state_vect * np.conj(state_vect)
     prob_vect = [float(i) for i in prob_vect]
-    print(prob_vect)
+    # print(prob_vect)
     measurements = np.random.multinomial(shots, prob_vect)
 
-    results = {}
+    results = []
     for state, frequency in zip(states, measurements):
-        results[state] = frequency
+        # results[state] = frequency/shots
+        results.append(frequency/shots)
 
     return results
 
+def combineMatrix(xDict, yDict, zDict):
+    xList = []
+    for x,y,z in zip(xDict, yDict, zDict):
+        xList.extend((x, y, z))
+
+    return xList
 
 def main():
-    # psi, circ = random_state_gen()  # generated state vector in z and the associated circuit
-    #
-    # print(psi)
-    # results_z = measure(psi)
-    # print(results_z)
-    #
-    # print('\n \n -------------------- \n')
-    #
-    # psi_x = change_basis(circ, 'x')
-    # print(psi_x)
-    # results_x = measure(psi_x)
-    # print(results_x)
-    #
-    # print('\n \n -------------------- \n')
-    #
-    # psi_y = change_basis(circ, 'y')
-    # print(psi_y)
-    # results_y = measure(psi_y)
-    # print(results_y)
+    X = []
+    Y = []
+    n = 5
+    for i in range(n):
+        #  generated state vector in z and the associated circuit
+        psi, circ = random_state_gen(random.random()*4)
 
-    return
+        results_z = measure(psi)
+        results_x = measure(change_basis(circ, 'x'))
+        results_y = measure(change_basis(circ, 'y'))
+
+        temp = []
+        for i in psi:
+            temp.extend([i.real, i.imag])
+        Y.append(temp)
+        X.append(combineMatrix(results_x, results_y, results_z))
+
+
+    print(X)
+    print(Y)
 
 
 if __name__ == '__main__':
