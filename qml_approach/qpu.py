@@ -1,14 +1,14 @@
 from qiskit import *
 import qml_main
 circ_depth = 6  # sets the circuit depth of the variational quantum circuit (d + 1 from paper)
+num_qbits = 5  # sets the number of qbits in our circuit
 
 
-def construct_variational_circ(theta, num_qbits=5, debug=False):
+def construct_variational_circ(theta, debug=False):
     """
     Generate a parameterized variational quantum circuit
 
     :param theta: numpy array, tuning our parameters for the variational circuit
-    :param num_qbits: int, num qbits
     :param debug: bool, prints info when debugging
     :return: qiskit.QuantumCircuit object, the variational circuit
     """
