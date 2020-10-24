@@ -4,7 +4,6 @@ from qiskit.quantum_info import random_statevector
 import numpy as np
 import qpu
 import random
-from pprint import pprint
 
 random.seed(1)  # setting random seed to 1 for reproducibility
 random_seed = 1

@@ -19,7 +19,7 @@ def construct_variational_circ(theta, num_qbits=5, debug=False):
         for qbit in range(len(lst_qbits)):
 
             # Compute if layer is odd or even to apply rx or ry gate to circuit
-            is_odd_step = (layer + 1)% 2
+            is_odd_step = (layer + 1) % 2
             if is_odd_step:
                 var_circ.rx(theta[layer][qbit], qbit)
             else:
@@ -76,9 +76,6 @@ def main():
     # fidelity2 = compute_fidelity(psi, psi)
     # print(fidelity2)
 
-
-    theta = qml_main.initialize_theta(num_qbits=5)
-    circ = construct_variational_circ(theta, num_qbits=5, debug=True)
     return
 
 
