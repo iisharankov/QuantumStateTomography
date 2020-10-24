@@ -39,8 +39,8 @@ def initialize_theta(num_qbits=2):
 
 def main():
     # psi = generate_random_psi(2, debug=True)
-    theta = initialize_theta()
-    pprint(theta)
+    # theta = initialize_theta()
+    # pprint(theta)
     return
 
 
