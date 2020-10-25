@@ -1,7 +1,7 @@
 # Main file for generating data
 from qiskit import *
 import numpy as np
-
+import random
 
 def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
     """
@@ -55,10 +55,15 @@ def measure(state_vect, shots=1_000_000, random_seed=1):
     :param random_seed: int, for setting the 'randomness'
     :return: dictionary with measured state and frequency of measurements
     """
+
     state_vect.seed(random_seed)
     results = state_vect.sample_counts(shots)
 
-    return results
+    result_as_list = np.zeros(state_vect.dim)
+    for key, value in results.items():
+        result_as_list[int(key, 2) - 1] = value/shots
+
+    return result_as_list
 
 
 def combineMatrix(xDict, yDict, zDict):
@@ -88,41 +93,30 @@ def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
 
 
 def main():
-    # X = []
-    # Y = []
-    # n = 100
-    # for i in range(n):
-    #     #  generated state vector in z and the associated circuit
-    #     psi, circ = random_state_gen(random.random()*4)
-    #
-    #     results_z = measure(psi)
-    #     results_x = measure(change_basis(circ, 'x'))
-    #     results_y = measure(change_basis(circ, 'y'))
-    #
-    #     temp = []
-    #     for i in psi:
-    #         temp.extend([i.real, i.imag])
-    #     Y.append(temp)
-    #     X.append(combineMatrix(results_x, results_y, results_z))
-    #
-    # save_generated_data_to_text(X, Y)
+    X = []
+    Y = []
+    n = 100
+    for i in range(n):
+        # special_psi = random_state_gen(3, real_valued_state=True)
+        psi = random_state_gen(2)
+        psi_x = change_basis(psi, 'x')
+        psi_y = change_basis(psi, 'y')
 
-    special_psi = random_state_gen(3, real_valued_state=True)
-    psi = random_state_gen(3)
-    psi_x = change_basis(psi, 'x')
-    psi_y = change_basis(psi, 'y')
+        x_results = measure(psi_x, shots=100_000_00)
+        y_results = measure(psi_y, shots=100_000_00)
+        z_results = measure(psi, shots=100_000_00)
 
-    x_results = measure(psi_x, shots=100)
-    y_results = measure(psi_y, shots=100)
-    z_results = measure(psi, shots=100)
+        print(x_results)
+        Y.append(psi.data)
+        X.append(combineMatrix(x_results, y_results, z_results))
 
-    print("|psi> = {}".format(psi))
-    print("|special_psi> = {}".format(special_psi))
-    print("x_axis measurement results: {}".format(x_results))
-    print("y_axis measurement results: {}".format(y_results))
-    print("z_axis measurement results: {}".format(z_results))
+    save_generated_data_to_text(X, Y)
 
-    return
+    # print("|psi> = {}".format(psi))
+    # print("|special_psi> = {}".format(special_psi))
+    # print("x_axis measurement results: {}".format(x_results))
+    # print("y_axis measurement results: {}".format(y_results))
+    # print("z_axis measurement results: {}".format(z_results))
 
 
 if __name__ == '__main__':
