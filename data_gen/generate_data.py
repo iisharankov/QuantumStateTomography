@@ -78,10 +78,27 @@ def combineMatrix(xDict, yDict, zDict):
 
     return xList
 
+def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
+    # Save this generated data into individual text files, stripped of whitespace for easy parsing later
+    with open("./" + xfilename + '.txt', 'w+') as a, open("./" + yfilename + '.txt', 'w+') as b:
+        assert len(X) == len(Y)  # The length of X & Y should be the same
+
+        # For each line in X, Y we want to save each element individually
+        for x, y in zip(X, Y):
+            for i in x:
+                a.write(str(i) + ",")
+
+            for i in y:
+                b.write(str(i) + ",")
+
+            # new line for each X,Y line
+            a.write("\n")
+            b.write("\n")
+
 def main():
     X = []
     Y = []
-    n = 5
+    n = 100
     for i in range(n):
         #  generated state vector in z and the associated circuit
         psi, circ = random_state_gen(random.random()*4)
@@ -96,9 +113,9 @@ def main():
         Y.append(temp)
         X.append(combineMatrix(results_x, results_y, results_z))
 
+    save_generated_data_to_text(X, Y)
 
-    print(X)
-    print(Y)
+
 
 
 if __name__ == '__main__':
