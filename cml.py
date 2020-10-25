@@ -42,6 +42,24 @@ def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
 
         return (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest)
 
+def convertBackToImg(stateVec):
+    """
+    Given a list of even length, with float/ints, convert
+    list to complex assuming a +ib, a+ib, a+ib, ... form
+    :param stateVec: list of floats
+    :return: list of complex
+    """
+    assert len(stateVec) % 2 == 0  # Make sure the list is even
+    outputList = []
+
+    while len(stateVec) > 1:  # While the list is not empty
+
+        # pop two elements, convert to complex and append
+        temp, stateVec = stateVec[:2], stateVec[2:]
+        outputList.append(complex(temp[0], temp[1]))
+
+    return outputList
+
 
 def trainModel(modelName, xTrain, yTrain):
 
@@ -51,12 +69,12 @@ def trainModel(modelName, xTrain, yTrain):
         '''
         softmax = K.exp(x) / K.sum(K.exp(x), axis=1, keepdims=True)
         a = K.sqrt(softmax)
-        tan = K.cos(x)/K.sin(x)
-        # b = K.exp(np.multiply(1j, tan))
+        arctan = K.cos(x)/K.sin(x)
+        # b = K.exp(np.multiply(1j, arctan))
         # return np.multiply(a, b)
 
-        b = K.exp(1j * tan)
-        # b = K.sin(tan) + (1j * K.cos(tan))
+        # b = K.exp(1j * arctan)
+        b = K.sin(arctan) + (1j * K.cos(arctan))
         return a * b
 
 
@@ -105,8 +123,8 @@ if __name__ == '__main__':
     X, Y = load_generated_data_to_text()
     (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = splitData(X, Y)
 
-
-    trainModel(modelName, xTrain, yTrain)
+    convertBackToImg(Y[1])
+    # trainModel(modelName, xTrain, yTrain)
     model = load_model(f'{modelName}.h5')
     # outputModel(model, xTrain, yTrain)
     testModel(model, xTest, yTest)
