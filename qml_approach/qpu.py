@@ -1,6 +1,6 @@
 from qiskit import *
 import qml_main
-circ_depth = 20  # sets the circuit depth of the variational quantum circuit (d + 1 from paper)
+circ_depth = 10  # sets the circuit depth of the variational quantum circuit (d + 1 from paper)
 num_qbits = 5  # sets the number of qbits in our circuit
 
 
