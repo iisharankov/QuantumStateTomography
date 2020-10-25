@@ -6,6 +6,8 @@ from keras.optimizers import SGD
 import keras.backend as K
 from keras.utils.generic_utils import get_custom_objects
 
+from qiskit.quantum_info import state_fidelity
+
 def load_generated_data_to_text(xfilename='XData', yfilename='YData'):
     X = []
     Y = []
@@ -34,7 +36,8 @@ def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
 
     else:
         b1 = int(np.floor(len(x_data) * (pTrain/100)))
-        b2 = int(np.ceil(len(x_data) * ((100-pTest)/100)))
+        b2 = int(np.ceil(len(
+            x_data) * ((100-pTest)/100)))
 
         xTrain, yTrain = x_data[:b1], y_data[:b1]
         xValidate, yValidate = x_data[b1: b2], y_data[b1: b2]
@@ -42,6 +45,36 @@ def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
 
         return (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest)
 
+def convertBackToImg(stateVec):
+    """
+    Given a list of even length, with float/ints, convert
+    list to complex assuming a +ib, a+ib, a+ib, ... form
+    :param stateVec: list of floats
+    :return: list of complex
+    """
+    assert len(stateVec) % 2 == 0  # Make sure the list is even
+    outputList = []
+
+    while len(stateVec) > 1:  # While the list is not empty
+
+        # pop two elements, convert to complex and append
+        temp, stateVec = stateVec[:2], stateVec[2:]
+        outputList.append(complex(temp[0], temp[1]))
+
+    return outputList
+
+def custom_loss(actsvect, estsvect):
+    '''
+    consumes numpy array of the ML's estimates and the actual
+    returns loss function 1-sqrt(fidelity)
+    '''
+    #We gotta turn the arrays into a list of a+ib first
+    estlst = convertBackToImg(estsvect.tolist()[0])
+    actslst = convertBackToImg(actsvect.tolist()[0])
+
+    fidelity = state_fidelity(estlst, actslst)
+
+    return 1-K.sqrt(fidelity)
 
 def trainModel(modelName, xTrain, yTrain):
 
@@ -51,12 +84,12 @@ def trainModel(modelName, xTrain, yTrain):
         '''
         softmax = K.exp(x) / K.sum(K.exp(x), axis=1, keepdims=True)
         a = K.sqrt(softmax)
-        tan = K.cos(x)/K.sin(x)
-        # b = K.exp(np.multiply(1j, tan))
+        arctan = K.cos(x)/K.sin(x)
+        # b = K.exp(np.multiply(1j, arctan))
         # return np.multiply(a, b)
 
-        b = K.exp(1j * tan)
-        # b = K.sin(tan) + (1j * K.cos(tan))
+        # b = K.exp(1j * arctan)
+        b = K.sin(arctan) + (1j * K.cos(arctan))
         return a * b
 
 
@@ -76,7 +109,7 @@ def trainModel(modelName, xTrain, yTrain):
 
 
     sgd = SGD(lr=0.5)
-    model.compile(loss='mean_squared_error', optimizer=sgd)
+    model.compile(loss=custom_loss, optimizer=sgd)
     model.fit(xTrain, yTrain, verbose=1,  batch_size=1, epochs=250)
 
     model.save(f'{modelName}.h5')  # creates a HDF5 file 'my_model.h5'
@@ -105,8 +138,8 @@ if __name__ == '__main__':
     X, Y = load_generated_data_to_text()
     (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = splitData(X, Y)
 
-
-    trainModel(modelName, xTrain, yTrain)
+    convertBackToImg(Y[1])
+    # trainModel(modelName, xTrain, yTrain)
     model = load_model(f'{modelName}.h5')
     # outputModel(model, xTrain, yTrain)
     testModel(model, xTest, yTest)
