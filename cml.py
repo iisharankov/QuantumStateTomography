@@ -6,6 +6,8 @@ from keras.optimizers import SGD
 import keras.backend as K
 from keras.utils.generic_utils import get_custom_objects
 
+from qiskit.quantum_info import state_fidelity
+
 def load_generated_data_to_text(xfilename='XData', yfilename='YData'):
     X = []
     Y = []
@@ -34,7 +36,8 @@ def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
 
     else:
         b1 = int(np.floor(len(x_data) * (pTrain/100)))
-        b2 = int(np.ceil(len(x_data) * ((100-pTest)/100)))
+        b2 = int(np.ceil(len(
+            x_data) * ((100-pTest)/100)))
 
         xTrain, yTrain = x_data[:b1], y_data[:b1]
         xValidate, yValidate = x_data[b1: b2], y_data[b1: b2]
@@ -60,6 +63,18 @@ def convertBackToImg(stateVec):
 
     return outputList
 
+def custom_loss(actsvect, estsvect):
+    '''
+    consumes numpy array of the ML's estimates and the actual
+    returns loss function 1-sqrt(fidelity)
+    '''
+    #We gotta turn the arrays into a list of a+ib first
+    estlst = convertBackToImg(estsvect.tolist()[0])
+    actslst = convertBackToImg(actsvect.tolist()[0])
+
+    fidelity = state_fidelity(estlst, actslst)
+
+    return 1-K.sqrt(fidelity)
 
 def trainModel(modelName, xTrain, yTrain):
 
@@ -94,7 +109,7 @@ def trainModel(modelName, xTrain, yTrain):
 
 
     sgd = SGD(lr=0.5)
-    model.compile(loss='mean_squared_error', optimizer=sgd)
+    model.compile(loss=custom_loss, optimizer=sgd)
     model.fit(xTrain, yTrain, verbose=1,  batch_size=1, epochs=250)
 
     model.save(f'{modelName}.h5')  # creates a HDF5 file 'my_model.h5'
