@@ -1,75 +1,65 @@
 # Main file for generating data
 from qiskit import *
 import numpy as np
-import random
 
 
-def random_state_gen(alpha=np.pi/2):
+def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
     """
-    Produces a quantum state vector given alpha
+    Produces a quantum state vector given number of qbits
 
-    :param alpha: float, angle between (0, 2pi)
-    :return: statevect: an array of complex #s
-    :return: circ: a qiskit.QuantumCircuit object
+    :param num_qbits: int, number of qbits > 0
+    :param random_seed: int, optional parameter to set 'randomness'
+    :param real_valued_state: bool, if true, produce a very special type of psi
+    :return: qiskit.quantum_info.Statevector object: an array of complex #s
     """
-    circ = qiskit.QuantumCircuit(2)  # initialize a quantum circuit with 2 qbits
+    dim = 2**num_qbits
 
-    circ.rx(alpha, 0)
-    circ.cx(0, 1)                  # create a 'kind of' entanglement between them
+    if real_valued_state:
+        psi_vect = np.random.uniform(size=dim)
+        psi = qiskit.quantum_info.Statevector(psi_vect)
 
-    backend = qiskit.Aer.get_backend('statevector_simulator')  # get simulator
-    job = execute(circ, backend)
-    result = job.result()
-    statevect = result.get_statevector(circ)  # state_vector as expressed in Z_basis
+    else:
+        psi = qiskit.quantum_info.random_statevector(dim, seed=random_seed)
 
-    return statevect, circ
+    return psi
 
 
-def change_basis(circ, basis):
+def change_basis(psi, basis):
     """
     Changes the basis that the state vector is expressed in
 
-    :param circ: qiskit.QuantumCircuit object
+    :param psi: qiskit.quantum_info.Statevector object
     :param basis: float, 'x' for x basis, 'y' for y basis, anything else for z basis
-    :return: statevect: an array of floats
+    :return: statevect: qiskit.quantum_info.Statevector object
     """
 
-    circ_copy = circ.copy()
+    num_qbits = psi.num_qubits
+    circ = qiskit.QuantumCircuit(num_qbits)
 
     if basis == 'x':
-        circ_copy.ry(-np.pi / 2, (0, 1))  # change basis to x
+        circ.ry(-np.pi / 2, (0, 1))  # change basis to x
 
     elif basis == 'y':
-        circ_copy.rx(np.pi / 2, (0, 1))  # change basis to y
+        circ.rx(np.pi / 2, (0, 1))  # change basis to y
 
-    backend = qiskit.Aer.get_backend('statevector_simulator')  # get simulator
-    job = execute(circ_copy, backend)
-    result = job.result()
-    statevect = result.get_statevector(circ_copy)  # state_vector
-
+    statevect = psi.evolve(circ)  # state_vector
     return statevect
 
 
-def measure(state_vect, shots=1_000_000):
+def measure(state_vect, shots=1_000_000, random_seed=1):
     """
     Make measurements along the z basis
 
-    :param state_vect: an array of floats
-    :param shots: int representing # of measurements
+    :param state_vect: qiskit.quantum_info.Statevector object
+    :param shots: int, representing # of measurements
+    :param random_seed: int, for setting the 'randomness'
     :return: dictionary with measured state and frequency of measurements
     """
-    states = ['00', '01', '10', '11']
-    prob_vect = state_vect * np.conj(state_vect)
-    prob_vect = [float(i) for i in prob_vect]
-    # print(prob_vect)
-    measurements = np.random.multinomial(shots, prob_vect)
-
-    results = []
-    for state, frequency in zip(states, measurements):
-        # results[state] = frequency/shots
-        results.append(frequency/shots)
+    state_vect.seed(random_seed)
+    results = state_vect.sample_counts(shots)
 
     return results
+
 
 def combineMatrix(xDict, yDict, zDict):
     xList = []
@@ -77,6 +67,7 @@ def combineMatrix(xDict, yDict, zDict):
         xList.extend((x, y, z))
 
     return xList
+
 
 def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
     # Save this generated data into individual text files, stripped of whitespace for easy parsing later
@@ -95,27 +86,43 @@ def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
             a.write("\n")
             b.write("\n")
 
+
 def main():
-    X = []
-    Y = []
-    n = 100
-    for i in range(n):
-        #  generated state vector in z and the associated circuit
-        psi, circ = random_state_gen(random.random()*4)
+    # X = []
+    # Y = []
+    # n = 100
+    # for i in range(n):
+    #     #  generated state vector in z and the associated circuit
+    #     psi, circ = random_state_gen(random.random()*4)
+    #
+    #     results_z = measure(psi)
+    #     results_x = measure(change_basis(circ, 'x'))
+    #     results_y = measure(change_basis(circ, 'y'))
+    #
+    #     temp = []
+    #     for i in psi:
+    #         temp.extend([i.real, i.imag])
+    #     Y.append(temp)
+    #     X.append(combineMatrix(results_x, results_y, results_z))
+    #
+    # save_generated_data_to_text(X, Y)
 
-        results_z = measure(psi)
-        results_x = measure(change_basis(circ, 'x'))
-        results_y = measure(change_basis(circ, 'y'))
+    special_psi = random_state_gen(3, real_valued_state=True)
+    psi = random_state_gen(3)
+    psi_x = change_basis(psi, 'x')
+    psi_y = change_basis(psi, 'y')
 
-        temp = []
-        for i in psi:
-            temp.extend([i.real, i.imag])
-        Y.append(temp)
-        X.append(combineMatrix(results_x, results_y, results_z))
+    x_results = measure(psi_x, shots=100)
+    y_results = measure(psi_y, shots=100)
+    z_results = measure(psi, shots=100)
 
-    save_generated_data_to_text(X, Y)
+    print("|psi> = {}".format(psi))
+    print("|special_psi> = {}".format(special_psi))
+    print("x_axis measurement results: {}".format(x_results))
+    print("y_axis measurement results: {}".format(y_results))
+    print("z_axis measurement results: {}".format(z_results))
 
-
+    return
 
 
 if __name__ == '__main__':
