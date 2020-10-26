@@ -1,17 +1,14 @@
 from qiskit import *
-import qml_main
-circ_depth = 10  # sets the circuit depth of the variational quantum circuit (d + 1 from paper)
-num_qbits = 5  # sets the number of qbits in our circuit
 
 
 def construct_variational_circ(theta, debug=False):
     """
     Generate a parameterized variational quantum circuit
-
     :param theta: numpy array, tuning our parameters for the variational circuit
     :param debug: bool, prints info when debugging
     :return: qiskit.QuantumCircuit object, the variational circuit
     """
+    circ_depth, num_qbits = theta.shape
     var_circ = qiskit.QuantumCircuit(num_qbits)
     lst_qbits = range(num_qbits)
 
@@ -26,10 +23,10 @@ def construct_variational_circ(theta, debug=False):
                 var_circ.ry(theta[layer][qbit], qbit)
 
             # Apply a cx gate AFTER first 3 qbits processed
-            if qbit % 2 == 0 and qbit != 0 :
+            if qbit % 2 == 0 and qbit != 0:
 
                 # isOddStep may subtract 1 if True, to correctly apply cx gate location
-                var_circ.cx(qbit - is_odd_step - 1, qbit - is_odd_step )
+                var_circ.cx(qbit - is_odd_step - 1, qbit - is_odd_step)
 
     for qbit in lst_qbits:  # bonus layer at the end only has rx gates and no cx
         var_circ.rx(theta[circ_depth - 1][qbit], qbit)
@@ -43,7 +40,6 @@ def construct_variational_circ(theta, debug=False):
 def simulate_circ(circ):
     """
     Generates our estimate state |phi> via simulation
-
     :param circ: qiskit.QuantumCircuit object, the variational quantum circuit
     :return: qiskit.Statevector object, represents our estimated quantum state |phi>
     """
@@ -58,7 +54,6 @@ def simulate_circ(circ):
 def compute_fidelity(psi, phi):
     """
     Compute the fidelity (a measure of similarity) between the two states
-
     :param psi: qiskit.Statevector, our target state |psi>
     :param phi: qiskit.Statevector, our estimated state |phi>
     :return: float, fidelity
@@ -68,15 +63,18 @@ def compute_fidelity(psi, phi):
     return fidelity
 
 
-def main():
-    # psi = qml_main.generate_random_psi(num_qbits=5)
-    # theta = qml_main.initialize_theta(num_qbits=5)
-    # circ = construct_variational_circ(theta, num_qbits=5)
-    # phi = simulate_circ(circ)
-    # fidelity1 = compute_fidelity(psi, phi)
-    # fidelity2 = compute_fidelity(psi, psi)
-    # print(fidelity2)
+def get_state(theta):
+    """
+    Use the parameter matrix (theta) to recreate state
+    :param theta: np.array, describes the parameters in the variational circuit
+    :return: qiskit.quantum_info.Statevector
+    """
+    circ = construct_variational_circ(theta)
+    state = simulate_circ(circ)
+    return state
 
+
+def main():
     return
 
 
