@@ -4,9 +4,16 @@ from keras.models import Sequential, load_model
 from keras.layers.core import Dense, Activation
 from keras.optimizers import SGD
 import keras.backend as K
+import keras.utils as U
 from keras.utils.generic_utils import get_custom_objects
 
 from qiskit.quantum_info import state_fidelity
+
+
+
+import tensorflow as tf
+# tf.compat.v1.enable_eager_execution()
+# print(tf.version)
 
 def load_generated_data_to_text(xfilename='XData', yfilename='YData'):
     X = []
@@ -36,8 +43,7 @@ def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
 
     else:
         b1 = int(np.floor(len(x_data) * (pTrain/100)))
-        b2 = int(np.ceil(len(
-            x_data) * ((100-pTest)/100)))
+        b2 = int(np.ceil(len(x_data) * ((100-pTest)/100)))
 
         xTrain, yTrain = x_data[:b1], y_data[:b1]
         xValidate, yValidate = x_data[b1: b2], y_data[b1: b2]
@@ -56,12 +62,13 @@ def convertBackToImg(stateVec):
     outputList = []
 
     while len(stateVec) > 1:  # While the list is not empty
-
-        # pop two elements, convert to complex and append
-        temp, stateVec = stateVec[:2], stateVec[2:]
-        outputList.append(complex(temp[0], temp[1]))
+        # Convert to complex and append
+        outputList.append(complex(stateVec[0], stateVec[1]))
+        stateVec = stateVec[2:]
 
     return outputList
+
+
 
 def custom_loss(actsvect, estsvect):
     '''
@@ -69,50 +76,78 @@ def custom_loss(actsvect, estsvect):
     returns loss function 1-sqrt(fidelity)
     '''
     #We gotta turn the arrays into a list of a+ib first
-    estlst = convertBackToImg(estsvect.tolist()[0])
-    actslst = convertBackToImg(actsvect.tolist()[0])
+    # sess = K.get_session()
+    # estlst = convertBackToImg(estsvect.tolist()[0])
+    # actslst = convertBackToImg(actsvect.tolist()[0])
+    # print(K.eval(estsvect))
+    # print(type(K.eval(estsvect)))
+    # if tf.is_tensor(estsvect):
 
-    fidelity = state_fidelity(estlst, actslst)
+    # if tf.is_tensor(estsvect):
+    #     # t = estsvect.eval(session=tf.compat.v1.Session())
+    #     t = estsvect.eval(session=sess)
+    #     # t = estsvect.asarray()
+    #
+    # estlst = convertBackToImg(tf.make_ndarray(estsvect))
+    # actslst = convertBackToImg(tf.make_ndarray(actsvect))
 
+    # fidelity = state_fidelity(estlst, actslst)
+
+
+    fidelity = K.pow(K.abs(K.dot(actsvect, K.transpose(estsvect))), 2)
     return 1-K.sqrt(fidelity)
 
 def trainModel(modelName, xTrain, yTrain):
 
+    # def QMSoftMax(x):
+    #     '''
+    #     consumes a list  of scores x, returns qsoftmax
+    #     '''
+    #     softmax = K.exp(x) / K.sum(K.exp(x), axis=1, keepdims=True)
+    #     a = K.sqrt(softmax)
+    #     arctan = K.cos(x)/K.sin(x)
+    #     # b = K.exp(np.multiply(1j, arctan))
+    #     # return np.multiply(a, b)
+    #
+    #     # b = K.exp(1j * arctan)
+    #     b = K.sin(arctan) + (1j * K.cos(arctan))
+    #     return a * b
+
     def QMSoftMax(x):
-        '''
-        consumes a list  of scores x, returns qsoftmax
-        '''
-        softmax = K.exp(x) / K.sum(K.exp(x), axis=1, keepdims=True)
-        a = K.sqrt(softmax)
-        arctan = K.cos(x)/K.sin(x)
-        # b = K.exp(np.multiply(1j, arctan))
-        # return np.multiply(a, b)
+        # softmax = K.exp(x) / K.sum(K.exp(x), axis=1, keepdims=True)
+        # a = K.sqrt(softmax)
+        # phase =  K.cos(x)/K.sin(x)
+        # # phase = np.pi*K.softsign(x) #another possibility for phase
+        #
+        # real_part = a * K.cos(phase)
+        # imaginary_part = a * K.sin(phase)
 
-        # b = K.exp(1j * arctan)
-        b = K.sin(arctan) + (1j * K.cos(arctan))
-        return a * b
+        return (K.sigmoid(x) * 5) - 1
+        # return (real_part, imaginary_part)
 
-
-    get_custom_objects().update({'QMSoftMax': Activation(QMSoftMax)})
 
     # def custom_loss(y_true, y_pred):
     #     return K.mean(K.square(K.abs(y_pred - y_true)))
+    get_custom_objects().update({'QMSoftMax': Activation(QMSoftMax)})
 
     # The ML Model
     model = Sequential()
     model.add(Dense(12))
     model.add(Dense(12))
     model.add(Dense(8))
-    # model.add(Activation('sigmoid'))
-    model.add(Activation(QMSoftMax, name='QMSoftMax'))
+    model.add(Activation('sigmoid'))
+    # model.add(Activation(QMSoftMax, name='QMSoftMax'))
 
-
+    # for 100 - score is: 0.21507123112678528
+    # for 250 - Test score is: 0.48923787474632263
 
     sgd = SGD(lr=0.5)
     model.compile(loss=custom_loss, optimizer=sgd)
-    model.fit(xTrain, yTrain, verbose=1,  batch_size=1, epochs=250)
+    # model.compile(loss='mean_squared_error', optimizer=sgd)
 
+    model.fit(xTrain, yTrain, verbose=2, batch_size=1, epochs=100)
     model.save(f'{modelName}.h5')  # creates a HDF5 file 'my_model.h5'
+
 
 def outputModel(model, xTrain, yTrain):
     print(model.predict(xTrain)[0])
@@ -124,7 +159,7 @@ def outputModel(model, xTrain, yTrain):
     # output = [np.round(i, 5) for i in inn]
     # print(inn[0:4])
 
-def testModel(model, xTest, yTest):
+def modelTest(model, xTest, yTest):
 
     predict = model.predict(xTest)
     print(np.mean(np.square(predict - yTest)))  # discrepancy  between prediction and what we expect
@@ -132,17 +167,22 @@ def testModel(model, xTest, yTest):
     print("Test score is:", score)
 
 if __name__ == '__main__':
-    modelName = 'my_model_middleLayerof12_customActivation'
+    modelName = 'myFirstModel'
+
 
     # Extract the datasets and separate them into separate groups
     X, Y = load_generated_data_to_text()
     (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = splitData(X, Y)
 
+    print(xTrain)
+    print(yTrain)
     convertBackToImg(Y[1])
-    # trainModel(modelName, xTrain, yTrain)
-    model = load_model(f'{modelName}.h5')
+    trainModel(modelName, xTrain, yTrain)
+    print("ew")
+    model = load_model(f'{modelName}.h5', custom_objects={'custom_loss':custom_loss})
+    print("we")
     # outputModel(model, xTrain, yTrain)
-    testModel(model, xTest, yTest)
+    modelTest(model, xTest, yTest)
 
 
 
