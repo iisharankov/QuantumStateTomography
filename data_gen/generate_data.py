@@ -3,6 +3,7 @@ from qiskit import *
 import numpy as np
 import random
 
+
 def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
     """
     Produces a quantum state vector given number of qbits
@@ -34,14 +35,16 @@ def change_basis(psi, basis):
     """
 
     num_qbits = psi.num_qubits
+    qbit_tuple = tuple(range(num_qbits))
     circ = qiskit.QuantumCircuit(num_qbits)
 
     if basis == 'x':
-        circ.ry(-np.pi / 2, (0, 1))  # change basis to x
+        circ.ry(-np.pi / 2, qbit_tuple)  # change basis to x
 
     elif basis == 'y':
-        circ.rx(np.pi / 2, (0, 1))  # change basis to y
+        circ.rx(np.pi / 2, qbit_tuple)  # change basis to y
 
+    print(circ)
     statevect = psi.evolve(circ)  # state_vector
     return statevect
 
@@ -57,13 +60,10 @@ def measure(state_vect, shots=1_000_000, random_seed=1):
     """
 
     state_vect.seed(random_seed)
-    results = state_vect.sample_counts(shots)
+    probability_vec = state_vect.probabilities()
+    results = np.random.multinomial(shots, probability_vec)
 
-    result_as_list = np.zeros(state_vect.dim)
-    for key, value in results.items():
-        result_as_list[int(key, 2) - 1] = value/shots
-
-    return result_as_list
+    return results
 
 
 def combineMatrix(xDict, yDict, zDict):
@@ -111,12 +111,6 @@ def main():
         X.append(combineMatrix(x_results, y_results, z_results))
 
     save_generated_data_to_text(X, Y)
-
-    # print("|psi> = {}".format(psi))
-    # print("|special_psi> = {}".format(special_psi))
-    # print("x_axis measurement results: {}".format(x_results))
-    # print("y_axis measurement results: {}".format(y_results))
-    # print("z_axis measurement results: {}".format(z_results))
 
 
 if __name__ == '__main__':
