@@ -44,7 +44,7 @@ def change_basis(psi, basis):
     elif basis == 'y':
         circ.rx(np.pi / 2, qbit_tuple)  # change basis to y
 
-    print(circ)
+    # print(circ)
     statevect = psi.evolve(circ)  # state_vector
     return statevect
 
@@ -63,6 +63,7 @@ def measure(state_vect, shots=1_000_000, random_seed=1):
     probability_vec = state_vect.probabilities()
     results = np.random.multinomial(shots, probability_vec)
 
+    results = [i/shots for i in results]
     return results
 
 
@@ -85,7 +86,7 @@ def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
                 a.write(str(i) + ",")
 
             for i in y:
-                b.write(str(i) + ",")
+                b.write(str(i).replace("(", "").replace(")", "") + ",")
 
             # new line for each X,Y line
             a.write("\n")
@@ -98,15 +99,15 @@ def main():
     n = 100
     for i in range(n):
         # special_psi = random_state_gen(3, real_valued_state=True)
-        psi = random_state_gen(2)
+        psi = random_state_gen(5)
         psi_x = change_basis(psi, 'x')
         psi_y = change_basis(psi, 'y')
 
-        x_results = measure(psi_x, shots=100_000_00)
-        y_results = measure(psi_y, shots=100_000_00)
-        z_results = measure(psi, shots=100_000_00)
+        x_results = measure(psi_x, shots=100_000_000_000)
+        y_results = measure(psi_y, shots=100_000_000_000)
+        z_results = measure(psi, shots=100_000_000_000)
 
-        print(x_results)
+        # print(x_results)
         Y.append(psi.data)
         X.append(combineMatrix(x_results, y_results, z_results))
 
