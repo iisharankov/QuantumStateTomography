@@ -17,6 +17,8 @@ def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
 
     if real_valued_state:
         psi_vect = np.random.uniform(size=dim)
+        norm = np.linalg.norm(psi_vect)
+        psi_vect = psi_vect / norm
         psi = qiskit.quantum_info.Statevector(psi_vect)
 
     else:
@@ -53,7 +55,7 @@ def change_basis(psi, basis='z', random_seed=1):
     else:  # generate random unitary to change basis
         unitary = qiskit.quantum_info.random_unitary(2**num_qbits, seed=random_seed)
         statevect = psi.evolve(unitary)
-        return statevect, unitary
+        return statevect, unitary     # this is broken ! DO NOT USE!
 
     statevect = psi.evolve(circ)  # state_vector
     unitary = qiskit.quantum_info.Operator(circ)
