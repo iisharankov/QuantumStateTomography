@@ -70,7 +70,7 @@ def measure(state_vect, shots=1_000_000, random_seed=1):
     :param state_vect: qiskit.quantum_info.Statevector object
     :param shots: int, representing # of measurements
     :param random_seed: int, for setting the 'randomness'
-    :return: dictionary with measured state and frequency of measurements
+    :return: list with measured state and frequency of measurements
     """
 
     state_vect.seed(random_seed)
@@ -80,6 +80,24 @@ def measure(state_vect, shots=1_000_000, random_seed=1):
     results = [i/shots for i in results]
     return results
 
+
+def measure_raw(state_vect, shots=1_000_000, random_seed=1):
+    """
+    Make measurements along the z basis, return raw data
+
+    :param state_vect: qiskit.quantum_info.Statevector object
+    :param shots: int, representing # of measurements
+    :param random_seed: int, for setting the 'randomness'
+    :return: a list of np.arrays containing the measurement results shape = (shots, num_qbits)
+    """
+
+    state_vect.seed(random_seed)
+    data_lst= state_vect.sample_memory(shots)
+    results = []
+    for measurement in data_lst:
+        results.append(np.array([int(j) for j in list(measurement)]))
+
+    return results
 
 def combineMatrix(xDict, yDict, zDict):
     xList = []
@@ -108,24 +126,28 @@ def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
 
 
 def main():
-    X = []
-    Y = []
-    n = 100
-    for i in range(n):
-        # special_psi = random_state_gen(3, real_valued_state=True)
-        psi = random_state_gen(5)
-        psi_x = change_basis(psi, 'x')
-        psi_y = change_basis(psi, 'y')
+    # X = []
+    # Y = []
+    # n = 100
+    # for i in range(n):
+    #     # special_psi = random_state_gen(3, real_valued_state=True)
+    #     psi = random_state_gen(5)
+    #     psi_x = change_basis(psi, 'x')
+    #     psi_y = change_basis(psi, 'y')
+    #
+    #     x_results = measure(psi_x, shots=100_000_000_000)
+    #     y_results = measure(psi_y, shots=100_000_000_000)
+    #     z_results = measure(psi, shots=100_000_000_000)
+    #
+    #     # print(x_results)
+    #     Y.append(psi.data)
+    #     X.append(combineMatrix(x_results, y_results, z_results))
+    #
+    # save_generated_data_to_text(X, Y)
 
-        x_results = measure(psi_x, shots=100_000_000_000)
-        y_results = measure(psi_y, shots=100_000_000_000)
-        z_results = measure(psi, shots=100_000_000_000)
-
-        # print(x_results)
-        Y.append(psi.data)
-        X.append(combineMatrix(x_results, y_results, z_results))
-
-    save_generated_data_to_text(X, Y)
+    psi = random_state_gen(3)
+    results = measure_raw(psi, shots=10)
+    print(results)
 
 
 if __name__ == '__main__':
