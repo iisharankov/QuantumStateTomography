@@ -25,28 +25,40 @@ def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
     return psi
 
 
-def change_basis(psi, basis):
+def change_basis(psi, basis='z', random_seed=1):
     """
-    Changes the basis that the state vector is expressed in
+    Changes the basis that the state vector is expressed in return
+    change of basis unitary
 
     :param psi: qiskit.quantum_info.Statevector object
     :param basis: float, 'x' for x basis, 'y' for y basis, anything else for z basis
+    :param random_seed: int, the seed for the random unitary genertation
     :return: statevect: qiskit.quantum_info.Statevector object
+    :return: unitary: a qiskit.quantum_info.Operator object
     """
 
     num_qbits = psi.num_qubits
     qbit_tuple = tuple(range(num_qbits))
     circ = qiskit.QuantumCircuit(num_qbits)
 
-    if basis == 'x':
+    if basis == 'z':
+        circ.i(qbit_tuple)  # apply identity since all states are by default in z basis
+
+    elif basis == 'x':
         circ.ry(-np.pi / 2, qbit_tuple)  # change basis to x
 
     elif basis == 'y':
         circ.rx(np.pi / 2, qbit_tuple)  # change basis to y
 
-    # print(circ)
+    else:  # generate random unitary to change basis
+        unitary = qiskit.quantum_info.random_unitary(2**num_qbits, seed=random_seed)
+        statevect = psi.evolve(unitary)
+        return statevect, unitary
+
     statevect = psi.evolve(circ)  # state_vector
-    return statevect
+    unitary = qiskit.quantum_info.Operator(circ)
+
+    return statevect, unitary
 
 
 def measure(state_vect, shots=1_000_000, random_seed=1):
