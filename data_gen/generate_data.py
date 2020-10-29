@@ -92,7 +92,7 @@ def measure_raw(state_vect, shots=1_000_000, random_seed=1):
     """
 
     state_vect.seed(random_seed)
-    data_lst= state_vect.sample_memory(shots)
+    data_lst = state_vect.sample_memory(shots)
     results = []
     for measurement in data_lst:
         results.append(np.array([int(j) for j in list(measurement)]))
@@ -123,6 +123,50 @@ def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
             # new line for each X,Y line
             a.write("\n")
             b.write("\n")
+
+
+def generate_psi_data_set(file_name, shots=5000, num_qbits=3):
+    file = open(file_name + '.txt', 'w')
+
+    for index in range(shots):
+        psi = random_state_gen(num_qbits, real_valued_state=True)
+        psi_data = [str(i) for i in psi.data]
+
+        row = '{}'.format(psi_data[0])
+        for i in psi_data[1:]:
+            row += ',' + i
+
+        row += '\n'
+        file.write(row)
+
+    file.close()
+    return
+
+
+def generate_raw_data_set(file_name, state_vect, shots=5000):
+    file = open(file_name + '.txt', 'w')
+
+    state_vect_lst = [str(i) for i in state_vect.data]
+    psi = "{}".format(state_vect_lst[0])
+    for i in state_vect_lst[1:]:
+        psi += ',' + i
+
+    psi += '\n'
+    file.write(psi)
+
+    measurements = measure_raw(state_vect, shots)
+    for x in measurements:
+        x_str_lst = [str(j) for j in x]
+        row = "{}".format(x_str_lst[0])
+
+        for x_str in x_str_lst[1:]:
+            row += ',' + x_str
+
+        row += '\n'
+        file.write(row)
+
+    file.close()
+    return
 
 
 def main():
