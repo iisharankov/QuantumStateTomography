@@ -18,9 +18,10 @@ class Controller extends React.Component {
     return (
       <>
         <h2>Single Qubit Visualizer</h2>
-        <p>Use this module to visualize qubits on the bloch sphere. Note all states here are static. Anything in this module is independent from the one below.</p>
+        <p>Use this module to visualize qubits on the bloch sphere. Note all states here are static. Anything this module is independent from the one below.</p>
         <p>What constraints can you find on the coefficients? Does a global phase on |0> and |1> change the depiction of the qubit?</p>
-        <p>Pressing SUBMIT will automatically NORMALIZE your coefficients.</p>
+        <p>A single bit can only store 0 or 1. How many possible values can be created here?</p>
+        <p>First select the number of qubits you wish you visualize. Note that pressing SUBMIT will automatically NORMALIZE your coefficients.</p>
         <Formik
           initialValues={{ quantity: this.state.quantity }}
           validate={this.validate}

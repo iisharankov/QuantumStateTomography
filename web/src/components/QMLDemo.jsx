@@ -164,6 +164,7 @@ class QMLDemo extends React.Component {
         <p>Iteration: The number of cycles the machine learning model will try before converging on the desired state.</p>
         <p>Circuit Depth: The complexity of the circuit. Greater depth increases accuracy and runtime.</p>
         <p>Number of Qubits: Careful; this increases exponentially!</p>
+        <p>Fidelity: Similarity of predicted and desired (hidden) quantum states. 1 is a perfect match. Contrast with the Loss.</p>
       </>
     );
   }
