@@ -9,3 +9,6 @@ pip install --user -r backend/requirements.txt
 
 # Installation for Frontend
 Check web/README.md.
+
+# Live Demo
+http://quantumstatetomography.sharankov.com/
