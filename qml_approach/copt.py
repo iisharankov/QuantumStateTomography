@@ -81,9 +81,9 @@ def optimize_theta_scp(theta, psi):
     return results, optimizer_data
 
 
-def main():
-    return
+def reset():
+    global optimizer_data
+    global optimizer_len
 
-
-if __name__ == '__main__':
-    main()
+    optimizer_data = []
+    optimizer_len = 0

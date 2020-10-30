@@ -25,6 +25,8 @@ def _get_phis(circ_depth, num_qbits):
     initial_theta = qml_main.initialize_theta(
         circ_depth=circ_depth, num_qbits=num_qbits)
     # Final result
+
+    copt.reset()
     results, optimizer_data = copt.optimize_theta_scp(initial_theta, psi)
 
     # Get loss and fidelity
