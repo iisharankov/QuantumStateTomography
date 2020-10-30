@@ -1,3 +1,9 @@
+"""Display qubits using radial or component coefficients.
+
+Returns:
+    Base 64 images
+"""
+
 import numpy as np
 import qiskit
 from qiskit_textbook.widgets import plot_bloch_vector_spherical

@@ -1,3 +1,7 @@
+"""Flask Backend
+
+Required for the physics simulations on the web demo.
+"""
 from flask import Flask, request, render_template, json
 import flask_cors
 import traceback
@@ -49,7 +53,7 @@ def get_qml():
 
     try:
         output = qml.show_phis(recv)
-    except:
+    except Exception:
         print('get_qml error')
         traceback.print_exc()
         return json.dumps('Error')
