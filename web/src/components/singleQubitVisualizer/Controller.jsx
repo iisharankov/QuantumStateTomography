@@ -1,6 +1,6 @@
 import React from 'react';
 import { Formik } from 'formik';
-import { Button } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 
 import CustomTextField from './CustomTextField';
 import Manager from './Manager';
@@ -30,8 +30,14 @@ class Controller extends React.Component {
         >
           {({ handleSubmit }) => (
             <form onSubmit={handleSubmit}>
-              <CustomTextField name="quantity" label="Number of Qubits" />
-              <Button type="submit" variant="contained" color="primary">SUBMIT QUANTITY</Button>
+              <Grid container item xs={12} spacing={3} >
+                <Grid container item xs={2} >
+                  <CustomTextField name="quantity" label="Number of Qubits" />
+                </Grid>
+                <Grid container item xs={2} >
+                  <Button type="submit" variant="contained" color="primary">SUBMIT QUANTITY</Button>
+                </Grid>
+              </Grid>
             </form>
           )}
         </Formik>

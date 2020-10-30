@@ -135,12 +135,12 @@ export function draw(ctx){
         plotManyComplexSpan(ctx);
     }
 
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = 'white';
     ctx.fillText(`Fidelity: ${allData.fidelity_series[index].toFixed(3)}`, 20, 20);
     ctx.fillText(`Loss: ${allData.loss_series[index].toFixed(3)}`, 20, 40);
   } else {
     ctx.fillText('Loading. Please stand by.', 20, 20);
   }
   
-  drawFrame(ctx, 'black');
+  drawFrame(ctx, 'white');
 };
