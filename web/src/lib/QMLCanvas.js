@@ -139,6 +139,7 @@ export function draw(ctx){
     ctx.fillText(`Fidelity: ${allData.fidelity_series[index].toFixed(3)}`, 20, 20);
     ctx.fillText(`Loss: ${allData.loss_series[index].toFixed(3)}`, 20, 40);
   } else {
+    ctx.fillStyle = 'white';
     ctx.fillText('Loading. Please stand by.', 20, 20);
   }
   
