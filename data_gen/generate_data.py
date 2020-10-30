@@ -129,7 +129,7 @@ def generate_psi_data_set(file_name, shots=5000, num_qbits=3):
     file = open(file_name + '.txt', 'w')
 
     for index in range(shots):
-        psi = random_state_gen(num_qbits, real_valued_state=True)
+        psi = random_state_gen(num_qbits, real_valued_state=False)
         psi_data = [str(i) for i in psi.data]
 
         row = '{}'.format(psi_data[0])
@@ -188,10 +188,12 @@ def main():
     #     X.append(combineMatrix(x_results, y_results, z_results))
     #
     # save_generated_data_to_text(X, Y)
+    generate_psi_data_set("5Qbit_system", 100_000, 5)
 
-    psi = random_state_gen(3)
-    results = measure_raw(psi, shots=10)
-    print(results)
+
+    # psi = random_state_gen(3)
+    # results = measure_raw(psi, shots=10)
+    # print(results)
 
 
 if __name__ == '__main__':

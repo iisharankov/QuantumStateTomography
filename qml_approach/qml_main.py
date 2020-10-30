@@ -40,13 +40,14 @@ def initialize_theta(circ_depth=10, num_qbits=2):
     :param num_qbits: int, number of qbits
     :return: np.array, values of theta
     """
-    theta = np.random.uniform(0, 2*np.pi, (circ_depth, num_qbits))
+    # theta = np.random.uniform(0, 2*np.pi, (circ_depth, num_qbits))
+    theta = np.zeros((circ_depth, num_qbits))
     return theta
 
 def multi_processing_attempt():
-    depth = 8
-    qbits = 3
-    file_name = "output_w_10k.txt"
+    depth = 17
+    qbits = 5
+    file_name = "output_w_100.txt"
     file = open(file_name, 'r')
     psi_lst = file.readlines()
     file.close()
