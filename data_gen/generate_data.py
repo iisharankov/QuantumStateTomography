@@ -188,7 +188,7 @@ def main():
     #     X.append(combineMatrix(x_results, y_results, z_results))
     #
     # save_generated_data_to_text(X, Y)
-    generate_psi_data_set("5Qbit_system", 100_000, 5)
+    generate_psi_data_set("5Qbit_system", 1_000, 5)
 
 
     # psi = random_state_gen(3)
