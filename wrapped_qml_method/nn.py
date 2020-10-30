@@ -72,30 +72,29 @@ def my_loss_fn(y_true, y_pred):
 def train_model(xTrain, yTrain, theta_raw, modelname):
     # Train model
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(50, activation='softmax', input_shape=theta_raw.shape),
-        tf.keras.layers.Dense(50, activation='tanh'),
+        tf.keras.layers.Dense(50, activation='relu', input_shape=theta_raw.shape),
+        tf.keras.layers.Dense(50, activation='softmax'),
+        tf.keras.layers.Dense(40, activation='relu'),
         tf.keras.layers.Dense(40, activation='softmax'),
-        # tf.keras.layers.Dense(50, activation='relu'),
-        # tf.keras.layers.Dense(25, activation='relu'),
-        tf.keras.layers.Dense(25, activation='tanh'),
+        tf.keras.layers.Dense(25, activation='relu'),
         tf.keras.layers.Dense(16, activation='softmax'),
-        tf.keras.layers.Dense(8, activation='sigmoid')  # softsign/ sigmoid
-        # tf.keras.layers.Dense(16, activation='softsign')  # softsign/ sigmoid
+        tf.keras.layers.Dense(8, activation='sigmoid')
+        # tf.keras.layers.Dense(16, activation='softsign')
     ])
-    model.summary()
+    # model.summary()
 
 
 
     model.compile(optimizer='adam', loss=my_loss_fn)
-    model.fit(epochs=500, batch_size=2000, x=xTrain, y=yTrain)
+    model.fit(epochs=500, batch_size=5000, x=xTrain, y=yTrain)
 
     # Save the model for future use
     model.save(f'{modelname}.h5')  # creates a HDF5 file
 
 def main():
     # Load data
-    psi_raw, theta_raw = open_files("training/training_data_3qbit_psi.txt", "training/training_data_3qbit_psi_theta.txt")
-    # psi_raw, theta_raw = open_files("output_w_10k_newPsi.txt", "output_w_10k_newTheta.txt")
+    # psi_raw, theta_raw = open_files("training/training_data_3qbit_psi.txt", "training/training_data_3qbit_psi_theta.txt")
+    psi_raw, theta_raw = open_files("output_w_10k_newPsi.txt", "output_w_10k_newTheta.txt")
 
     # Create the different datasets
     (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = splitData(theta_raw, psi_raw)
@@ -105,16 +104,13 @@ def main():
     model.evaluate(x=xValidate, y=yValidate)
 
     pred = model.predict(xTest)
+
+    x = []
     for i, j in zip(pred, yTest):
-        print([round(np.abs(a-b), 4) for a, b in zip(i, j)])
+        x.append([round(np.abs(a-b), 4) for a, b in zip(i, j)])
 
-    # counts = 0
-    # for i, j in zip(pred, label):
-    #     if i == j:
-    #         counts += 1
-    #
-    # print((counts/len(xTest))*100, "%")
-
+    a = np.array(x)
+    print(np.mean(a, axis=0))
 
 
 if __name__ == "__main__":
