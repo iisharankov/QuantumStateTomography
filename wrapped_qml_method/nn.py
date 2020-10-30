@@ -5,6 +5,7 @@ from qiskit import *
 
 
 def main():
+    # Load data
     psi_data = open("training/training_data_3qbit_psi.txt", 'r')
     lines_psi = psi_data.readlines()
     psi_raw = np.zeros((len(lines_psi), 8), dtype=np.complex)
@@ -24,6 +25,7 @@ def main():
 
     theta_data.close()
 
+    # Train model
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(50, activation='relu', input_shape=theta_raw.shape),
         tf.keras.layers.Dense(8, activation='sigmoid')
@@ -37,9 +39,9 @@ def main():
 
     model.compile(optimizer='adam', loss=my_loss_fn)
 
-    # tf.trainable_variables()
     history = model.fit(epochs=100, x=theta_raw, y=psi_raw)
 
+    # load validation data
     psi_data = open("validation/validation_data_3qbit_psi.txt", 'r')
     lines_psi = psi_data.readlines()
     psi_raw_val = np.zeros((len(lines_psi), 8), dtype=np.complex)
@@ -59,6 +61,7 @@ def main():
 
     theta_data.close()
 
+    # run evaluation
     model.evaluate(x=theta_raw_val, y=psi_raw_val)
 
     return
