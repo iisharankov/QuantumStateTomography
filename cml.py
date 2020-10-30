@@ -5,11 +5,10 @@ from keras.layers.core import Dense, Activation
 from keras.optimizers import SGD
 import keras.backend as K
 import keras.utils as U
-from keras.layers import Layer
+from keras.layers import Layer, LSTM, Embedding, LeakyReLU
 from keras.utils.generic_utils import get_custom_objects
 
 from qiskit.quantum_info import state_fidelity
-
 
 
 # Custom layer
@@ -193,23 +192,52 @@ def trainDoubleModel(modelName, xTrain, yTrain):
     # The ML Model
     model = Sequential()
     model.add(Dense(12))
-    model.add(Dense(12))
-    model.add(Dense(8))
-    model.add(Dense(4))
-    model.add(Activation('tanh'))
+    # model.add(Dense(12))
+    # model.add(Embedding(input_dim=12, output_dim=8))
+    # model.add(LSTM(units=8))
+    model.add(Dense(10))
+    model.add(Activation('softmax'))
+    # model.add(LeakyReLU(alpha=0.1))
     # model.add(Activation('softsign'))
-    # model.add(Activation('identity'))
     # model.add(Activation(SoftMax, name='SoftMax'))
+    model.add(Dense(8))
 
     sgd = SGD(lr=0.5)
     # model.compile(loss=custom_loss, optimizer=sgd)
-    model.compile(loss='', optimizer=sgd)
-
-    model.fit(xTrain, yTrain, verbose=2, batch_size=1, epochs=50)
+    model.compile(loss='mean_squared_error', optimizer=sgd)
+    #
+    model.fit(xTrain, yTrain, verbose=2, batch_size=1, epochs=100)
     return model
+
+def listDoubler(myList):
+    """
+    Given a list of lists of floats, return a list of list of floats
+    where the sublists are 2 times larger, and all negative values are seperates
+    [-5, 0, 3] -> [0, 5, 0, 0, 3, 0]
+    :param myList: list of list of floats
+    :return: list of list of floats
+    """
+    output = []
+    j = 0
+    for subList in myList:
+        output.append([])
+        for i in subList:
+            if i > 0:
+                output[j].append(i)
+                output[j].append(0.0)
+            else:
+                output[j].append(0.0)
+                output[j].append(abs(i))
+        j += 1
+
+    return output
+
+
+
 
 if __name__ == '__main__':
     modelName = 'myFirstModel'
+
 
 
     # Extract the datasets and separate them into separate groups
@@ -218,23 +246,26 @@ if __name__ == '__main__':
 
     print(xTrain)
     print(yTrain)
-    yTrainReal = [[j[0], j[2], j[4], j[6]] for j in yTrain]
-    yTrainImag = [[j[1], j[3], j[5], j[7]] for j in yTrain]
+    yTrainReal = listDoubler([[j[0], j[2], j[4], j[6]] for j in yTrain])
+    yTrainImag = listDoubler([[j[1], j[3], j[5], j[7]] for j in yTrain])
+
     modelReal = trainDoubleModel(modelName, xTrain, yTrainReal)
     modelImag = trainDoubleModel(modelName, xTrain, yTrainImag)
     modelReal.save(f'{modelName}_Real.h5')  # creates a HDF5 file 'my_model.h5'
     modelImag.save(f'{modelName}_Imag.h5')  # creates a HDF5 file 'my_model.h5'
 
     # model = load_model(f'{modelName}.h5', custom_objects={'custom_loss':custom_loss, 'MyCustomLayer':MyCustomLayer})
-    modelReal = load_model(f'{modelName}_Real.h5', custom_objects={'custom_loss': custom_loss,})
-    modelImag = load_model(f'{modelName}_Imag.h5', custom_objects={'custom_loss': custom_loss,})
+    # modelReal = load_model(f'{modelName}_Real.h5', custom_objects={'custom_loss': custom_loss,})
+    # modelImag = load_model(f'{modelName}_Imag.h5', custom_objects={'custom_loss': custom_loss,})
+    modelReal = load_model(f'{modelName}_Real.h5')
+    modelImag = load_model(f'{modelName}_Imag.h5')
     print("we")
     outputModel(modelReal, xTrain, yTrainReal)
     print('--------')
     outputModel(modelReal, xTrain, yTrainImag)
 
-    yTestReal = [[j[0], j[2], j[4], j[6]] for j in yTest]
-    yTestImag = [[j[1], j[3], j[5], j[7]] for j in yTest]
+    yTestReal = listDoubler([[j[0], j[2], j[4], j[6]] for j in yTest])
+    yTestImag = listDoubler([[j[1], j[3], j[5], j[7]] for j in yTest])
     modelTest(modelReal, xTest, yTestReal)
     modelTest(modelImag, xTest, yTestImag)
 
