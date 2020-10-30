@@ -5,7 +5,7 @@ import { Button } from '@material-ui/core';
 import CustomTextField from './CustomTextField';
 import Manager from './Manager';
 
-// Allow user to select qubits to display
+// Allow user to select qubits to single qubit visualizer
 class Controller extends React.Component {
   constructor(props) {
     super(props);
@@ -17,7 +17,7 @@ class Controller extends React.Component {
   render() {
     return (
       <>
-        <h3>Qubit Controller</h3>
+        <h3>Single Qubit Visualizer</h3>
         <Formik
           initialValues={{ quantity: this.state.quantity }}
           validate={this.validate}

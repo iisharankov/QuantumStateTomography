@@ -2,9 +2,10 @@ import React from 'react';
 import { Formik } from 'formik';
 import { Button } from '@material-ui/core';
 
-import CustomTextField from './CustomTextField';
-import HoC from '../visualizer/hoc';
+import CustomTextField from '../singleQubitVisualizer/CustomTextField';
+import HoC from './hoc';
 
+// Optional component not in use
 class ComponentSelector extends React.Component {
   render() {
     return (

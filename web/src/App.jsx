@@ -1,14 +1,16 @@
 import React from 'react';
 
-import ComponentSelector from './components/ComponentSelector';
-import Controller from './components/Controller';
-import RadialSelector from './components/RadialSelector';
+import Controller from './components/singleQubitVisualizer/Controller';
+import QMLDemo from './components/QMLDemo';
 
 
 function App() {
   return (
     <>
       <Controller />
+      <hr></hr>
+      <QMLDemo />
+      <hr></hr>
     </>
   );
 }

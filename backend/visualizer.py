@@ -3,6 +3,7 @@ import base64, io
 
 
 def _export_png(plt):
+  # Matplotlib plot to base64
   pic_IObytes = io.BytesIO()
   plt.set_size_inches(3, 3)  # 300 x 300 px
   plt.savefig(pic_IObytes, format='png')

@@ -2,9 +2,9 @@ import React from 'react';
 
 import QubitManager from './QubitManager';
 
-import getImg from '../backend/img';
-import post from '../backend/post';
-import { newQubit } from '../lib/quantum';
+import getImg from '../../backend/img';
+import post from '../../backend/post';
+import { newQubit } from '../../lib/Qubit';
 
 function makeQubitManager() {
   return {
@@ -56,7 +56,6 @@ class Manager extends React.Component {
                   setState={(data, setSubmitting) => {
                     this.updateForm(i, data);
 
-                    console.log(`data = ${JSON.stringify(data)}`);
                     post('multivector', data)
                       .then(async (response) => {
                         const managers = [...this.state.managers]; // Shallow copy

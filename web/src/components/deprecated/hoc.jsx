@@ -1,7 +1,7 @@
 import React from 'react';
 
-import getImg from '../backend/img';
-import post from '../backend/post';
+import getImg from '../../backend/img';
+import post from '../../backend/post';
 
 function HoC(WrappedComponent) {
   return class extends React.Component {

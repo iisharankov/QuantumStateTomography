@@ -1,5 +1,5 @@
 import Complex from 'Complex';
-import NormalizedComplex from './NormalizedComplex';
+import QuantumCoefficient from './QuantumCoefficient';
 
 export class Qubit {
   constructor(zero, one) {
@@ -12,7 +12,7 @@ export class Qubit {
   }
 
   exportForm() {
-    // Fix later
+    // Not implemented
     const theta = 0;
     const phi = 0;
 
@@ -66,23 +66,23 @@ export class Qubit {
   }
 
   updateForm(form) {
-    const zero = new NormalizedComplex(Number(form.r0), Number(form.i0));
-    const one = new NormalizedComplex(Number(form.r1), Number(form.i1));
+    const zero = new QuantumCoefficient(Number(form.r0), Number(form.i0));
+    const one = new QuantumCoefficient(Number(form.r1), Number(form.i1));
 
     return new Qubit(zero, one).normalize();
   }
 }
 
 export function newQubit() {
-  return new Qubit(new NormalizedComplex(1, 0), new NormalizedComplex(0, 0));
+  return new Qubit(new QuantumCoefficient(1, 0), new QuantumCoefficient(0, 0));
 }
 
 export function radialQubit(theta, phi) {
   const r0 = Math.cos(theta / 2);
-  const zero = new NormalizedComplex(r0, 0);
+  const zero = new QuantumCoefficient(r0, 0);
 
   const oneState = Complex.fromPolar(Math.sin(theta / 2), phi);
-  const one = new NormalizedComplex(oneState.real, oneState.im);
+  const one = new QuantumCoefficient(oneState.real, oneState.im);
 
   return new Qubit(zero, one).normalize();
 }
