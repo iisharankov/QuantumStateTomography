@@ -77,7 +77,8 @@ class QMLDemo extends React.Component {
   render() {
     return (
       <>
-        <h3>Quantum Machine Learning Demo</h3>
+        <h2>Quantum Machine Learning Demo</h2>
+        <p>Press start to generate a random quantum state. Calculations usually take about one minute so read the description below while it loads.</p>
         <Grid container xs={12} justify="flex-start" alignItems="flex-start">
           <Grid container item xs={12} >
             <canvas
@@ -157,6 +158,12 @@ class QMLDemo extends React.Component {
             </Grid>
           </Grid>
         </Grid>
+        <p>A quantum state can be represented as 2^n complex coefficients where the absolute value is between 0 and 1. Where n is the number of qubits.</p>
+        <p>There are many different ways to visualize these coefficients. We have graph each coefficient on a unit circle in the complex plane (scaled so the radius is that of the magnitude of the largest coefficient.) As the model stabilizes you will notice coloured dots slowly settle where the original is likely to remain. If you are observant you may notice the model will rarely and seemingly converge on a quantum state before changing to a drastically new one. Careful observation would show these solutions are nearly identical and are phase shifts of each other. Global phase shifts are represented as clockwise or counterclockwise rotations of all dots.</p>
+        <p>The Line visual draws each point from the origin. The Trail visual will draw indicators for the past and future positions of each coefficient in adjacent iterations. How do the visuals change as the model steadies?</p>
+        <p>Iteration: The number of cycles the machine learning model will try before converging on the desired state.</p>
+        <p>Circuit Depth: The complexity of the circuit. Greater depth increases accuracy and runtime.</p>
+        <p>Number of Qubits: Careful; this increases exponentially!</p>
       </>
     );
   }

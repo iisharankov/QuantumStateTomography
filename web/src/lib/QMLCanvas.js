@@ -113,7 +113,7 @@ function plotComplexSpan(ctx, complexNumber, colour) {
     ctx.fillStyle = colour;
     ctx.strokeStyle = colour;
     drawLine(ctx, ORIGIN, ORIGIN, pt.x, pt.y);
-    drawCircle(ctx, pt.x, pt.y, 2, colour, true);
+    drawCircle(ctx, pt.x, pt.y, 4, colour, true);
 }
 
 function rotatePoint(originX, originY, pointX, pointY, angle) {

@@ -17,7 +17,10 @@ class Controller extends React.Component {
   render() {
     return (
       <>
-        <h3>Single Qubit Visualizer</h3>
+        <h2>Single Qubit Visualizer</h2>
+        <p>Use this tool to visualize qubits on the bloch sphere.</p>
+        <p>What constraints are there on the coefficients? Does a global phase on |0> and |1> change the depiction of the qubit?</p>
+        <p>Pressing SUBMIT will automatically NORMALIZE your coefficients.</p>
         <Formik
           initialValues={{ quantity: this.state.quantity }}
           validate={this.validate}
