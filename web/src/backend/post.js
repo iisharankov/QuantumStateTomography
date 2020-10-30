@@ -1,4 +1,4 @@
-const POST_DOMAIN = 'http://127.0.0.1:5000/';
+const POST_DOMAIN = 'http://quantumstatetomography.sharankov.com:81/';
 
 async function post(id, data) {
   // Send POST request to backend
