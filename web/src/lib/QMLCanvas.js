@@ -14,13 +14,15 @@ let loaded = false;
 let index = 0;
 let qubits = {};
 let maxMag = 1;
+let visual = 'Line';
 
-export function loadQubits(newData, newIndex) {
+export function loadQubits(newData, newIndex, newVisual) {
     loaded = true;
     index = newIndex;
     allData = newData;
     maxMag = newData.maxMag;
     qubits = newData.phis;
+    visual = newVisual;
 }
 
 function drawCircle(ctx, cx, cy, radius, colour, fill=false) {
@@ -49,7 +51,7 @@ function drawFrame(ctx, colour) {
     drawLine(ctx, ORIGIN, 0, ORIGIN, CANVAS_SIZE);
 }
 
-function plotManyComplex(ctx) {
+function plotManyComplexTrail(ctx) {
     function getColour(i) {
         const percentage = i * 360 / Object.keys(qubits[index]).length;
         return HueAngleToRGB(percentage);
@@ -58,18 +60,55 @@ function plotManyComplex(ctx) {
     let i = 0;
     for (const num of Object.values(qubits[index])) {
         const colour = getColour(i);
-        plotComplex(ctx, num, colour);
+        plotComplexSpan(ctx, num, colour);
         i++;
     }
     
 }
 
-function plotComplex(ctx, complexNumber, colour) {
+function plotManyComplexSpan(ctx) {
+    function getColour(i) {
+        const percentage = i * 360 / Object.keys(qubits[index]).length;
+        return HueAngleToRGB(percentage);
+    }
+
+    const MAX = 4;
+    for (let radius = MAX; radius > 0; radius--) {
+        function drawPlot(tempIndex) {
+            if (tempIndex >= 0 && tempIndex < qubits.length) {
+                let i = 0;
+                for (const num of Object.values(qubits[tempIndex])) {
+                    const colour = getColour(i);
+                    plotComplexPoint(ctx, num, colour, radius);
+                    i++;
+                }
+            }
+        }
+
+        const delta = MAX - radius;
+        drawPlot(index + delta);
+        drawPlot(index - delta);
+    }    
+}
+
+function getComplexPoint(complexNumber) {
     const angle = -complexNumber.angle();
     const magnitude = complexNumber.magnitude();
 
     const pointRadius = magnitude * RADIUS / maxMag;
-    const pt = rotatePoint(ORIGIN, ORIGIN, ORIGIN + pointRadius, ORIGIN, angle);
+    return rotatePoint(ORIGIN, ORIGIN, ORIGIN + pointRadius, ORIGIN, angle);
+}
+
+function plotComplexPoint(ctx, complexNumber, colour, radius) {
+    const pt = getComplexPoint(complexNumber);
+
+    ctx.fillStyle = colour;
+    ctx.strokeStyle = colour;
+    drawCircle(ctx, pt.x, pt.y, radius, colour, true);
+}
+
+function plotComplexSpan(ctx, complexNumber, colour) {
+    const pt = getComplexPoint(complexNumber);
 
     ctx.fillStyle = colour;
     ctx.strokeStyle = colour;
@@ -90,7 +129,12 @@ export function draw(ctx){
 
   ctx.font = '14pt Arial';
   if (loaded) {
-    plotManyComplex(ctx);
+    if (visual === 'Line') {
+        plotManyComplexTrail(ctx);
+    } else {
+        plotManyComplexSpan(ctx);
+    }
+
     ctx.fillStyle = 'black';
     ctx.fillText(`Fidelity: ${allData.fidelity_series[index].toFixed(3)}`, 20, 20);
     ctx.fillText(`Loss: ${allData.loss_series[index].toFixed(3)}`, 20, 40);

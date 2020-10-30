@@ -1,6 +1,11 @@
 import React from 'react';
 import { Button, Grid, Slider, Typography } from '@material-ui/core';
 
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 import post from '../backend/post';
 import parseComplex from '../backend/parseComplex';
 import { draw, CANVAS_SIZE, loadQubits } from '../lib/QMLCanvas';
@@ -15,6 +20,7 @@ class QMLDemo extends React.Component {
       loading: false,
       circ_depth: 10,
       num_qbits: 5,
+      visual: 'Line',
     }
 
     this.canvasRef = React.createRef();
@@ -42,7 +48,6 @@ class QMLDemo extends React.Component {
         }
 
         const data = parseComplex(reply);
-        console.log(`data = ${Object.keys(data)}`);
         this.setState({
           cache: data,
           loading: false,
@@ -59,8 +64,9 @@ class QMLDemo extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.index !== this.state.index || prevState.cache !== this.state.cache) {
-      loadQubits(this.state.cache, this.state.index);
+    if (this.state.cache !== null &&
+      (prevState.index !== this.state.index || prevState.cache !== this.state.cache || prevState.visual !== this.state.visual)) {
+      loadQubits(this.state.cache, this.state.index, this.state.visual);
     }
 
     const canvasObj = this.canvasRef.current;
@@ -130,6 +136,19 @@ class QMLDemo extends React.Component {
             <Grid container item xs={1} >
               <Button disabled={this.state.loading || this.state.error} type="button" onClick={this.submit}
                 variant="contained" color="primary">START</Button>
+            </Grid>
+            <Grid container item xs={1} >
+              <FormControl>
+                <InputLabel>Visual</InputLabel>
+                <Select
+                  onChange={(event, value) => {
+                    this.setState({visual: event.target.value});
+                  }}
+                >
+                  <MenuItem value="Line">Line</MenuItem>
+                  <MenuItem value="Trail">Trail</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
             <Grid container item xs={2} >
               {
