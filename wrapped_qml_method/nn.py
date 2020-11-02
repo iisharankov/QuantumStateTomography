@@ -81,7 +81,6 @@ def train_model(xTrain, yTrain, theta_raw, modelname):
         tf.keras.layers.Dense(40, activation='softmax'),
         tf.keras.layers.Dense(25, activation='relu'),
         tf.keras.layers.Dense(16, activation='softmax'),
-        # tf.keras.layers.Dense(8, activation='sigmoid')
         tf.keras.layers.Dense(16, activation='softsign')
     ])
     # model.summary()
@@ -92,40 +91,37 @@ def train_model(xTrain, yTrain, theta_raw, modelname):
 
     # model.compile(optimizer='adam', loss=my_loss_fn)
     model.compile(optimizer=sgd, loss=my_loss_fn)
-    model.fit(epochs=7500, batch_size=2500, x=xTrain, y=yTrain)
+    model.fit(epochs=2500, batch_size=2500, x=xTrain, y=yTrain)
 
     # Save the model for future use
-    model.save(f'{modelname}.h5')  # creates a HDF5 file
+    # model.save(f'{modelname}.h5')  # creates a HDF5 file
 
 def main():
     # Load data
-    # psi_raw, theta_raw = open_files("training/training_data_3qbit_psi.txt", "training/training_data_3qbit_psi_theta.txt")
-    # psi_raw, theta_raw = open_files("output_w_10k_newPsi.txt", "output_w_10k_newTheta.txt")
     psi_raw, theta_raw = open_files_w_complex("3Qbit_complex_psi_1k_newPsi.txt", "3Qbit_complex_psi_1k_Theta.txt")
     # psi_raw, theta_raw = open_files_w_complex("complex_w_100_newPsi.txt", "complex_w_100_newTheta.txt")
 
     # Create the different datasets
     (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = splitData(theta_raw, psi_raw)
+
     modelname = "QML_Model_700"
     # train_model(xTrain, yTrain, theta_raw, modelname)
     model = load_model(f'{modelname}.h5', custom_objects={'my_loss_fn': my_loss_fn})
     model.evaluate(x=xValidate, y=yValidate)
 
-    pred = model.predict(xTest)
+    pred = model.predict(xTest)k
 
     x = []
     fidelity = []
     for i, j in zip(pred, yTest):
         x.append([round(np.abs(a-b), 4) for a, b in zip(i, j)])
         # fidelity.append([1 - np.sqrt(a * b) for a, b in zip(i, j)])
-        # print("pred", i)
-        # print("yTest", j)
 
     complexFidelity = []
     for tempX, tempY in zip(pred, yTest):
         a = tempX
         b = tempY
-
+k
         tempTerm1, tempTerm2 = 0, 0
         while len(a) > 0:
             tempTerm1 += (a[0] * b[0]) + (a[1] * b[1])
@@ -136,10 +132,11 @@ def main():
         complexFidelity.append(pow(tempTerm1, 2) + pow(tempTerm2, 2))
 
 
-    # Take the average
+    # Take the averagek
+    print("Average error in test dataset for all {len(x)} complex coefficients")
     print(np.mean(np.array(x), axis=0))
     # print(np.mean(np.array(fidelity), axis=0))
-    print(np.mean(np.array(complexFidelity), axis=0))
+    print("Average fidelity over all the training set: ", np.mean(np.array(complexFidelity), axis=0))
 
 
 if __name__ == "__main__":
