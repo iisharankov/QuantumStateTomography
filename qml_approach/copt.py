@@ -33,10 +33,12 @@ def compute_loss_gradient(theta_vector, *args):
     psi = args[0]  # feed psi as a parameter
     circ_depth = args[1]
     num_qbits = args[2]
-    theta = np.reshape(theta_vector, (circ_depth, num_qbits))  # reshapes the flat theta vector
+    theta = np.reshape(theta_vector, (circ_depth, num_qbits)
+                       )  # reshapes the flat theta vector
     fidelity = get_fidelity(theta, psi)
 
-    dl_df = -0.5 * fidelity ** (-0.5)  # the derivative of the loss wrt fidelity
+    # the derivative of the loss wrt fidelity
+    dl_df = -0.5 * fidelity ** (-0.5)
 
     df_dtheta = []  # a list of partial derivatives of the fidelity wrt the theta parameters
 
@@ -81,9 +83,9 @@ def optimize_theta_scp(theta, psi):
     return results, optimizer_data
 
 
-def main():
-    return
+def reset():
+    global optimizer_data
+    global optimizer_len
 
-
-if __name__ == '__main__':
-    main()
+    optimizer_data = []
+    optimizer_len = 0

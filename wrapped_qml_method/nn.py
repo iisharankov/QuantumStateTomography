@@ -7,6 +7,7 @@ from keras.optimizers import SGD
 from keras.models import Sequential, load_model
 from keras.utils.generic_utils import get_custom_objects
 
+
 def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
 
     assert len(x_data) == len(y_data)
@@ -24,6 +25,7 @@ def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
         xTest, yTest = x_data[b2:], y_data[b2:]
 
         return (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest)
+
 
 def open_files(psi_file, theta_file):
     with open(psi_file, 'r') as psi_data:
@@ -44,9 +46,10 @@ def open_files(psi_file, theta_file):
 
     return psi_raw, theta_raw
 
+
 def open_files_w_complex(psi_file, theta_file):
     with open(psi_file, 'r') as psi_data:
-    # psi_data = open("complex_psi_newPsi.txt", 'r')
+        # psi_data = open("complex_psi_newPsi.txt", 'r')
         lines_psi = psi_data.readlines()
         psi_raw = np.zeros((len(lines_psi), 8*2))
 
@@ -72,10 +75,12 @@ def my_loss_fn(y_true, y_pred):
     squared_difference = tf.square(y_true - y_pred)
     return tf.reduce_mean(squared_difference, axis=-1)
 
+
 def train_model(xTrain, yTrain, theta_raw, modelname):
     # Train model
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(50, activation='softmax', input_shape=theta_raw.shape),
+        tf.keras.layers.Dense(50, activation='softmax',
+                              input_shape=theta_raw.shape),
         tf.keras.layers.Dense(50, activation='relu'),
         tf.keras.layers.Dense(40, activation='softmax'),
         tf.keras.layers.Dense(40, activation='softmax'),
@@ -85,8 +90,6 @@ def train_model(xTrain, yTrain, theta_raw, modelname):
     ])
     # model.summary()
 
-
-
     sgd = SGD(lr=0.075)
 
     # model.compile(optimizer='adam', loss=my_loss_fn)
@@ -95,6 +98,7 @@ def train_model(xTrain, yTrain, theta_raw, modelname):
 
     # Save the model for future use
     # model.save(f'{modelname}.h5')  # creates a HDF5 file
+
 
 def main():
     # Load data
@@ -106,7 +110,8 @@ def main():
 
     modelname = "QML_Model_700"
     # train_model(xTrain, yTrain, theta_raw, modelname)
-    model = load_model(f'{modelname}.h5', custom_objects={'my_loss_fn': my_loss_fn})
+    model = load_model(f'{modelname}.h5', custom_objects={
+                       'my_loss_fn': my_loss_fn})
     model.evaluate(x=xValidate, y=yValidate)
 
     pred = model.predict(xTest)
@@ -131,9 +136,9 @@ def main():
 
         complexFidelity.append(pow(tempTerm1, 2) + pow(tempTerm2, 2))
 
-
-    # Take the averagek
+    # Take the average
     print("Average error in test dataset for all {len(x)} complex coefficients")
+
     print(np.mean(np.array(x), axis=0))
     # print(np.mean(np.array(fidelity), axis=0))
     print("Average fidelity over all the training set: ", np.mean(np.array(complexFidelity), axis=0))

@@ -44,6 +44,7 @@ def initialize_theta(circ_depth=10, num_qbits=2):
     theta = np.zeros((circ_depth, num_qbits))
     return theta
 
+
 def multi_processing_attempt():
     depth = 17
     qbits = 5
@@ -66,13 +67,15 @@ def multi_processing_attempt():
 
 
 def pool_function(line):
+
     depth = 8
     qbits = 3
 
     psi_vect = [complex(v) for v in line.split(',')]
     psi = qiskit.quantum_info.Statevector(psi_vect)
     initial_theta = initialize_theta(circ_depth=depth, num_qbits=qbits)
-    results, optimizer_data = copt.optimize_theta_scp(initial_theta, psi)  # Final result
+    results, optimizer_data = copt.optimize_theta_scp(
+        initial_theta, psi)  # Final result
     optimized_theta = optimizer_data[-1]
 
     theta_str_lst = [str(i) for i in optimized_theta]
@@ -80,12 +83,11 @@ def pool_function(line):
 
     return [line, row]
 
+
 def main():
     start = time.time()
     multi_processing_attempt()
     print("that took ", time.time() - start, " seconds")
-
-    return
 
 
 if __name__ == '__main__':

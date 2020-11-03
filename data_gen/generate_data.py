@@ -2,6 +2,7 @@
 from qiskit import *
 import numpy as np
 import random
+import pickle
 
 
 def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
@@ -95,7 +96,7 @@ def measure_raw(state_vect, shots=1_000_000, random_seed=1):
     data_lst = state_vect.sample_memory(shots)
     results = []
     for measurement in data_lst:
-        results.append(np.array([int(j) for j in list(measurement)]))
+        results.append([float(j) for j in list(measurement)])
 
     return results
 
@@ -191,6 +192,9 @@ def main():
 
 
     generate_psi_data_set("5Qbit_system", 1_000, 5)
+
+    with open('../unsupervised_approach/data.pkl', 'wb') as f:
+        pickle.dump(results, f)
 
 
 if __name__ == '__main__':

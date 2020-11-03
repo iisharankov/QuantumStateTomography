@@ -46,7 +46,8 @@ def simulate_circ(circ):
     backend = Aer.get_backend('statevector_simulator')   # get simulator
     job = execute(circ, backend)
     result = job.result()
-    circ_statevect = qiskit.quantum_info.Statevector(result.get_statevector(circ))
+    circ_statevect = qiskit.quantum_info.Statevector(
+        result.get_statevector(circ))
 
     return circ_statevect
 
