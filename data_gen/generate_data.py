@@ -188,12 +188,9 @@ def main():
     #     X.append(combineMatrix(x_results, y_results, z_results))
     #
     # save_generated_data_to_text(X, Y)
+
+
     generate_psi_data_set("5Qbit_system", 1_000, 5)
-
-
-    # psi = random_state_gen(3)
-    # results = measure_raw(psi, shots=10)
-    # print(results)
 
 
 if __name__ == '__main__':

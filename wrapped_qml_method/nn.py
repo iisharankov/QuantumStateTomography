@@ -109,7 +109,7 @@ def main():
     model = load_model(f'{modelname}.h5', custom_objects={'my_loss_fn': my_loss_fn})
     model.evaluate(x=xValidate, y=yValidate)
 
-    pred = model.predict(xTest)k
+    pred = model.predict(xTest)
 
     x = []
     fidelity = []
@@ -121,7 +121,7 @@ def main():
     for tempX, tempY in zip(pred, yTest):
         a = tempX
         b = tempY
-k
+
         tempTerm1, tempTerm2 = 0, 0
         while len(a) > 0:
             tempTerm1 += (a[0] * b[0]) + (a[1] * b[1])
