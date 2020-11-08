@@ -1,55 +1,49 @@
 import numpy as np
 import tensorflow as tf
-import tensorflow.keras
-from qiskit import *
-
-from keras.optimizers import SGD
-from keras.models import Sequential, load_model
-from keras.utils.generic_utils import get_custom_objects
+from tensorflow.keras.optimizers import SGD
+from tensorflow.keras.models import load_model
 
 
-def splitData(x_data, y_data, pTrain=70, pValidate=20, pTest=10):
+def split_data(x_data, y_data, ptrain=0.70, pvalidate=0.20, ptest=0.10):
+    """
+    Given two arrays of equal size, split the data sets into
+    training, validation and testing datasets of the specified size.
+
+    :param x_data: np.array, first data set
+    :param y_data: np.array, second data set
+    :param ptrain: float, precent of total data_set to be allocated for training
+    :param pvalidate: float, precent of total data_set to be allocated for validation
+    :param ptest: float, precent of total data_set to be allocated for testing
+    :return: 3 tuples (train), (validate), (test), each of size 2 (x_data, y_data)
+    """
 
     assert len(x_data) == len(y_data)
 
-    if pTrain + pValidate + pTest != 100:
-        print('WARNING: pTrain, pValidate, pTest must add up to 100%')
+    if not np.isclose(ptrain + pvalidate + ptest, 1.0):
+        print('WARNING: ptrain, pvalidate, ptest must add up to 100%')
         return ([], []), ([], []), ([], [])
 
     else:
-        b1 = int(np.floor(len(x_data) * (pTrain/100)))
-        b2 = int(np.ceil(len(x_data) * ((100-pTest)/100)))
+        b1 = int(np.floor(len(x_data) * ptrain))
+        b2 = int(np.ceil(len(x_data) * (1-ptest)))
 
-        xTrain, yTrain = x_data[:b1], y_data[:b1]
-        xValidate, yValidate = x_data[b1: b2], y_data[b1: b2]
-        xTest, yTest = x_data[b2:], y_data[b2:]
+        xtrain, ytrain = x_data[:b1], y_data[:b1]
+        xvalidate, yvalidate = x_data[b1: b2], y_data[b1: b2]
+        xtest, ytest = x_data[b2:], y_data[b2:]
 
-        return (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest)
+        return (xtrain, ytrain), (xvalidate, yvalidate), (xtest, ytest)
 
 
 def open_files(psi_file, theta_file):
+    """
+    function to open the txt files and extract the meta data from
+    the files containing the raw data for quantum states (psi) and the parameterizations (theta) .
+    :param psi_file: str, path to the txt file containing quantum state data
+    :param theta_file: str, path to the txt file containing the parameterization data
+    :return: 2 np.arrays, containing the raw data: psi_data and theta_data
+    """
+
     with open(psi_file, 'r') as psi_data:
-        lines_psi = psi_data.readlines()
-
-        psi_raw = np.zeros((len(lines_psi), 8), dtype=np.complex)
-
-        for i, line in enumerate(lines_psi):
-            psi_raw[i] = [complex(j) for j in line.split(',')]
-        psi_raw = np.real(psi_raw)
-
-    with open(theta_file, 'r') as theta_data:
-        lines_theta = theta_data.readlines()
-        theta_raw = np.zeros((len(lines_theta), 24))
-
-        for i, line in enumerate(lines_theta):
-            theta_raw[i] = [float(j) for j in line.split(',')]
-
-    return psi_raw, theta_raw
-
-
-def open_files_w_complex(psi_file, theta_file):
-    with open(psi_file, 'r') as psi_data:
-        # psi_data = open("complex_psi_newPsi.txt", 'r')
         lines_psi = psi_data.readlines()
         psi_raw = np.zeros((len(lines_psi), 8*2))
 
@@ -72,15 +66,35 @@ def open_files_w_complex(psi_file, theta_file):
 
 
 def my_loss_fn(y_true, y_pred):
+    """
+    custom loss func, implemented mean squared error in this case
+    between y_true and y_pred
+
+    :param y_true: np.array, vector containing "true" values
+    :param y_pred: np.array, vector containing "predicted" values
+    :return: float, mean squared error between the two vectors
+    """
+
     squared_difference = tf.square(y_true - y_pred)
     return tf.reduce_mean(squared_difference, axis=-1)
 
 
-def train_model(xTrain, yTrain, theta_raw, modelname):
+def train_model(xtrain, ytrain, input_len, modelname):
+    """
+    Training a simple feed forward NN model to learn the
+    mapping between variational circuit parameterizations and
+    the associated quantum states
+
+    :param xtrain: parameterization data set for training
+    :param ytrain: associated quantum state data set for training
+    :param input_len: int, number of components in the parameterization vector (len(xtrain[i]))
+    :param modelname: str, name of the model
+    :return: None
+    """
+
     # Train model
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(50, activation='softmax',
-                              input_shape=theta_raw.shape),
+        tf.keras.layers.Dense(50, activation='softmax', input_shape=(None, input_len)),
         tf.keras.layers.Dense(50, activation='relu'),
         tf.keras.layers.Dense(40, activation='softmax'),
         tf.keras.layers.Dense(40, activation='softmax'),
@@ -92,24 +106,25 @@ def train_model(xTrain, yTrain, theta_raw, modelname):
 
     sgd = SGD(lr=0.075)
 
-    # model.compile(optimizer='adam', loss=my_loss_fn)
     model.compile(optimizer=sgd, loss=my_loss_fn)
-    model.fit(epochs=2500, batch_size=2500, x=xTrain, y=yTrain)
+    # model.fit(epochs=2500, batch_size=2500, x=xtrain, y=ytrain)
+    model.fit(epochs=5, batch_size=2500, x=xtrain, y=ytrain)
 
     # Save the model for future use
-    # model.save(f'{modelname}.h5')  # creates a HDF5 file
+    model.save(f'{modelname}.h5')  # creates a HDF5 file
+    return
 
 
 def main():
     # Load data
-    psi_raw, theta_raw = open_files_w_complex("3Qbit_complex_psi_1k_newPsi.txt", "3Qbit_complex_psi_1k_Theta.txt")
-    # psi_raw, theta_raw = open_files_w_complex("complex_w_100_newPsi.txt", "complex_w_100_newTheta.txt")
+    psi_raw, theta_raw = open_files("./data/3Qbit_complex_psi_1k_newPsi.txt",
+                                    "./data/3Qbit_complex_psi_1k_newTheta.txt")
 
     # Create the different datasets
-    (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = splitData(theta_raw, psi_raw)
+    (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = split_data(theta_raw, psi_raw)
 
-    modelname = "QML_Model_700"
-    # train_model(xTrain, yTrain, theta_raw, modelname)
+    modelname = "./model/QML_Model_700"
+    # train_model(xTrain, yTrain, theta_raw.shape[1], modelname)  # train model
     model = load_model(f'{modelname}.h5', custom_objects={
                        'my_loss_fn': my_loss_fn})
     model.evaluate(x=xValidate, y=yValidate)
@@ -117,31 +132,28 @@ def main():
     pred = model.predict(xTest)
 
     x = []
-    fidelity = []
     for i, j in zip(pred, yTest):
         x.append([round(np.abs(a-b), 4) for a, b in zip(i, j)])
-        # fidelity.append([1 - np.sqrt(a * b) for a, b in zip(i, j)])
 
-    complexFidelity = []
+    complex_fidelity = []
     for tempX, tempY in zip(pred, yTest):
         a = tempX
         b = tempY
 
-        tempTerm1, tempTerm2 = 0, 0
+        temp_term1, temp_term2 = 0, 0
         while len(a) > 0:
-            tempTerm1 += (a[0] * b[0]) + (a[1] * b[1])
-            tempTerm2 += (a[0] * b[1]) - (a[1] * b[0])
+            temp_term1 += (a[0] * b[0]) + (a[1] * b[1])
+            temp_term2 += (a[0] * b[1]) - (a[1] * b[0])
             a = a[2:]
             b = b[2:]
 
-        complexFidelity.append(pow(tempTerm1, 2) + pow(tempTerm2, 2))
+        complex_fidelity.append(pow(temp_term1, 2) + pow(temp_term2, 2))
 
-    # Take the average
-    print("Average error in test dataset for all {len(x)} complex coefficients")
-
+    # Take the average and print results
+    print("Average error in test dataset for all 8 complex coefficients (split into (real, im)):")
     print(np.mean(np.array(x), axis=0))
-    # print(np.mean(np.array(fidelity), axis=0))
-    print("Average fidelity over all the training set: ", np.mean(np.array(complexFidelity), axis=0))
+    print("Average fidelity over all the training set: ", np.mean(np.array(complex_fidelity), axis=0))
+    return
 
 
 if __name__ == "__main__":
