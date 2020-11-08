@@ -8,6 +8,7 @@ def construct_variational_circ(theta, debug=False):
     :param debug: bool, prints info when debugging
     :return: qiskit.QuantumCircuit object, the variational circuit
     """
+
     circ_depth, num_qbits = theta.shape
     var_circ = qiskit.QuantumCircuit(num_qbits)
     lst_qbits = range(num_qbits)
@@ -43,6 +44,7 @@ def simulate_circ(circ):
     :param circ: qiskit.QuantumCircuit object, the variational quantum circuit
     :return: qiskit.Statevector object, represents our estimated quantum state |phi>
     """
+
     backend = Aer.get_backend('statevector_simulator')   # get simulator
     job = execute(circ, backend)
     result = job.result()
@@ -70,6 +72,7 @@ def get_state(theta):
     :param theta: np.array, describes the parameters in the variational circuit
     :return: qiskit.quantum_info.Statevector
     """
+
     circ = construct_variational_circ(theta)
     state = simulate_circ(circ)
     return state

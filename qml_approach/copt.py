@@ -3,10 +3,20 @@ import numpy as np
 import scipy.optimize as opt
 import qpu
 optimizer_data = []
-optimizer_len = 0
+optimizer_len = 0  # global constants to store info from optimizer calls
 
 
 def get_fidelity(theta, psi):
+    """
+    compute the fidelity between two quantum states (psi, phi) where
+    psi is the target state and phi is the reconstructed state generated
+    using VQCs.
+
+    :param theta: np.array, containing the parameterization for the VQC
+    :param psi: qiskit.QuantumCircuit object, target state psi
+    :return: float, fidelity between (0, 1)
+    """
+
     circ = qpu.construct_variational_circ(theta)
     phi = qpu.simulate_circ(circ)
     fidelity = qpu.compute_fidelity(psi, phi)
@@ -15,10 +25,29 @@ def get_fidelity(theta, psi):
 
 
 def get_loss(fidelity):
+    """
+    Get the loss between two states given the fidelity between them.
+    We define the loss between two states as 1 - sqrt(fidelity).
+
+    :param fidelity: float
+    :return: float, loss
+    """
+
     return 1 - np.sqrt(fidelity)
 
 
 def compute_loss(theta_vector, *args):
+    """
+    Compute the loss explicitly between two states (psi, phi). Where phi
+    is reconstructed from the parameterization theta. args is a list containing
+    the target state psi, the variational circuit depth and the number of qbits in
+    psi.
+
+    :param theta_vector: np.array, the parameterization vector
+    :param args: list, containing [psi, circ_depth, num_qbits]
+    :return: float, loss
+    """
+
     psi = args[0]
     circ_depth = args[1]
     num_qbits = args[2]
@@ -30,11 +59,22 @@ def compute_loss(theta_vector, *args):
 
 
 def compute_loss_gradient(theta_vector, *args):
+    """
+    Compute the gradient of our loss function. Since the loss is a scalar function
+    over a vector parameter (thetas) we will have a vector valued gardient. We compute
+    the gradient evaluated at (theta_vector). args is a list which contains the target state
+    psi (qiskit.QuantumCircuit object), the variational quantum circuit depth, and the number
+    of qbits.
+
+    :param theta_vector: np.array, the parameterization vector
+    :param args: list, contains [psi, circ_depth, num_qbits]
+    :return: np.array, of len = len(theta_vector), the gradient vector
+    """
+
     psi = args[0]  # feed psi as a parameter
     circ_depth = args[1]
     num_qbits = args[2]
-    theta = np.reshape(theta_vector, (circ_depth, num_qbits)
-                       )  # reshapes the flat theta vector
+    theta = np.reshape(theta_vector, (circ_depth, num_qbits))  # reshapes the flat theta vector
     fidelity = get_fidelity(theta, psi)
 
     # the derivative of the loss wrt fidelity
@@ -62,17 +102,33 @@ def compute_loss_gradient(theta_vector, *args):
 
 
 def optimizer_callback(current_theta):
+    """
+    A function to store the state of the parameterization (theta) vector as it
+    gets optimized. This data is useful for tuning the optimization process.
+
+    :param current_theta: np.array, current iteration value of theta_vector
+    :return: bool, False constantly to prevent optimizer from truncating early
+    """
+
     global optimizer_data
     global optimizer_len
 
     optimizer_data.append(current_theta)
-    # print('iteration: {}'.format(optimizer_len))
-    # optimizer_len += 1
-
+    optimizer_len += 1
     return False
 
 
 def optimize_theta_scp(theta, psi):
+    """
+    A function that determines the optimal parameterization vector (theta) for a
+    variational quantum circuit in order to minimize the loss (the difference)
+    between a target state psi and a reconstructed state phi (produced from theta)
+
+    :param theta: np.array, parameterization vector
+    :param psi: qiskit.QuantumCircuit object, target state psi
+    :return: results from optimizer and list (optimizer data), which contains results between each iteration
+    """
+
     theta_vector = np.reshape(theta, theta.size)
     circ_depth, num_qbits = theta.shape
     global optimizer_data
@@ -84,8 +140,23 @@ def optimize_theta_scp(theta, psi):
 
 
 def reset():
+    """
+    function to manually reset the globabl variables.
+    Should not be used (only for emergancies)
+    :return: None
+    """
+
     global optimizer_data
     global optimizer_len
 
     optimizer_data = []
     optimizer_len = 0
+    return
+
+
+def main():
+    return
+
+
+if __name__ == "__main__":
+    main()

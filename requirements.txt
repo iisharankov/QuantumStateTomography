@@ -1,3 +1,5 @@
 keras
 numpy
 tensorflow
+qiskit
+scipy

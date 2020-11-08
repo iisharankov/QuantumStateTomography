@@ -1,8 +1,6 @@
 # Main file for generating data
 from qiskit import *
 import numpy as np
-import random
-import pickle
 
 
 def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
@@ -11,9 +9,10 @@ def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
 
     :param num_qbits: int, number of qbits > 0
     :param random_seed: int, optional parameter to set 'randomness'
-    :param real_valued_state: bool, if true, produce a very special type of psi
+    :param real_valued_state: bool, if true, produce a psi with only real valued coefficients
     :return: qiskit.quantum_info.Statevector object: an array of complex #s
     """
+
     dim = 2**num_qbits
 
     if real_valued_state:
@@ -100,33 +99,20 @@ def measure_raw(state_vect, shots=1_000_000, random_seed=1):
 
     return results
 
-def combineMatrix(xDict, yDict, zDict):
-    xList = []
-    for x,y,z in zip(xDict, yDict, zDict):
-        xList.extend((x, y, z))
 
-    return xList
+def generate_psi_data_set(file_name, shots=1000, num_qbits=3):
+    """
+    Create a data set of radomly generated quantum states.
+    Constructs a text file where each line corresponds to the quantum state.
+    each comma seperated value is the complex coefficient to the basis states
+    of an Nqbit state (basis states ordered from least to greatest left to right)
 
+    :param file_name: str, file name (not including .txt)
+    :param shots: int, number of randomly generated states
+    :param num_qbits: int, number of qbits in quantum state
+    :return: None
+    """
 
-def save_generated_data_to_text(X, Y, xfilename='XData', yfilename='YData'):
-    # Save this generated data into individual text files, stripped of whitespace for easy parsing later
-    with open("./" + xfilename + '.txt', 'w+') as a, open("./" + yfilename + '.txt', 'w+') as b:
-        assert len(X) == len(Y)  # The length of X & Y should be the same
-
-        # For each line in X, Y we want to save each element individually
-        for x, y in zip(X, Y):
-            for i in x:
-                a.write(str(i) + ",")
-
-            for i in y:
-                b.write(str(i).replace("(", "").replace(")", "") + ",")
-
-            # new line for each X,Y line
-            a.write("\n")
-            b.write("\n")
-
-
-def generate_psi_data_set(file_name, shots=5000, num_qbits=3):
     file = open(file_name + '.txt', 'w')
 
     for index in range(shots):
@@ -145,6 +131,17 @@ def generate_psi_data_set(file_name, shots=5000, num_qbits=3):
 
 
 def generate_raw_data_set(file_name, state_vect, shots=5000):
+    """
+    Generate a data set containing raw measurements for a quantum state.
+    The first line in the text file is the quantum state, subsequent lines
+    are the raw measurements obtained.
+
+    :param file_name: str, name of text file
+    :param state_vect: qiskit.QuantumCircuit object,
+    :param shots: int, number of raw measurements
+    :return: None
+    """
+
     file = open(file_name + '.txt', 'w')
 
     state_vect_lst = [str(i) for i in state_vect.data]
@@ -171,30 +168,8 @@ def generate_raw_data_set(file_name, state_vect, shots=5000):
 
 
 def main():
-    # X = []
-    # Y = []
-    # n = 100
-    # for i in range(n):
-    #     # special_psi = random_state_gen(3, real_valued_state=True)
-    #     psi = random_state_gen(5)
-    #     psi_x = change_basis(psi, 'x')
-    #     psi_y = change_basis(psi, 'y')
-    #
-    #     x_results = measure(psi_x, shots=100_000_000_000)
-    #     y_results = measure(psi_y, shots=100_000_000_000)
-    #     z_results = measure(psi, shots=100_000_000_000)
-    #
-    #     # print(x_results)
-    #     Y.append(psi.data)
-    #     X.append(combineMatrix(x_results, y_results, z_results))
-    #
-    # save_generated_data_to_text(X, Y)
-
-
-    generate_psi_data_set("5Qbit_system", 1_000, 5)
-
-    with open('../unsupervised_approach/data.pkl', 'wb') as f:
-        pickle.dump(results, f)
+    generate_psi_data_set("3Qbit_complex,psi_1k")
+    return
 
 
 if __name__ == '__main__':
