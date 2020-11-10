@@ -94,12 +94,12 @@ def train_model(xtrain, ytrain, input_len, modelname):
 
     # Train model
     model = tf.keras.Sequential([
-        tf.keras.layers.Dense(50, activation='softmax', input_shape=(None, input_len)),
+        tf.keras.layers.Dense(50, activation='relu', input_shape=(None, input_len)),
         tf.keras.layers.Dense(50, activation='relu'),
-        tf.keras.layers.Dense(40, activation='softmax'),
-        tf.keras.layers.Dense(40, activation='softmax'),
+        tf.keras.layers.Dense(40, activation='relu'),
+        tf.keras.layers.Dense(40, activation='relu'),
         tf.keras.layers.Dense(25, activation='relu'),
-        tf.keras.layers.Dense(16, activation='softmax'),
+        tf.keras.layers.Dense(16, activation='relu'),
         tf.keras.layers.Dense(16, activation='softsign')
     ])
     # model.summary()
@@ -107,8 +107,7 @@ def train_model(xtrain, ytrain, input_len, modelname):
     sgd = SGD(lr=0.075)
 
     model.compile(optimizer=sgd, loss=my_loss_fn)
-    # model.fit(epochs=2500, batch_size=2500, x=xtrain, y=ytrain)
-    model.fit(epochs=5, batch_size=2500, x=xtrain, y=ytrain)
+    model.fit(epochs=2500, batch_size=2500, x=xtrain, y=ytrain)
 
     # Save the model for future use
     model.save(f'{modelname}.h5')  # creates a HDF5 file
@@ -117,16 +116,15 @@ def train_model(xtrain, ytrain, input_len, modelname):
 
 def main():
     # Load data
-    psi_raw, theta_raw = open_files("./data/3Qbit_complex_psi_1k_newPsi.txt",
-                                    "./data/3Qbit_complex_psi_1k_newTheta.txt")
+    psi_raw, theta_raw = open_files("./data/3Qbit_psi_1k_newPsi_dif.txt", "./data/3Qbit_psi_1k_newTheta_dif.txt")
+    # psi_raw, theta_raw = open_files("./data/3Qbit_complex_psi_1k_newPsi.txt", "./data/3Qbit_complex_psi_1k_newTheta.txt")
 
     # Create the different datasets
     (xTrain, yTrain), (xValidate, yValidate), (xTest, yTest) = split_data(theta_raw, psi_raw)
 
-    modelname = "./model/QML_Model_700"
-    # train_model(xTrain, yTrain, theta_raw.shape[1], modelname)  # train model
-    model = load_model(f'{modelname}.h5', custom_objects={
-                       'my_loss_fn': my_loss_fn})
+    modelname = "./model/QML_Model_1k_dif"
+    train_model(xTrain, yTrain, theta_raw.shape[1], modelname)  # train model
+    model = load_model(f'{modelname}.h5', custom_objects={'my_loss_fn': my_loss_fn})
     model.evaluate(x=xValidate, y=yValidate)
 
     pred = model.predict(xTest)
