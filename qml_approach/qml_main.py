@@ -71,17 +71,19 @@ def multi_processing_attempt(file_name):
     return
 
 
-def pool_function(line, circ_depth, num_qbits):
+def pool_function(line):
     """
     Reads in the quantum state (psi) and runs the QML method to
     determine the associated parameterization (theta). returns
     a list containing the [psi, theta] written as strings.
 
     :param line: str, the quantum state psi, written as a str
-    :param circ_depth: int, representing depth of VQC
-    :param num_qbits: int, num qbits for state psi
     :return: list of len 2, containing the str psi (quantum state) and str theta (parameterization)
     """
+    #     :param circ_depth: int, representing depth of VQC ## need to fix this
+    #     :param num_qbits: int, num qbits for state psi
+    circ_depth = 8
+    num_qbits = 3
 
     psi_vect = [complex(v) for v in line.split(',')]
     psi = qiskit.quantum_info.Statevector(psi_vect)
@@ -97,6 +99,7 @@ def pool_function(line, circ_depth, num_qbits):
 
 
 def main():
+    # multi_processing_attempt("3Qbit_psi_1k.txt")
     return
 
 

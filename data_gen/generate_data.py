@@ -3,12 +3,11 @@ from qiskit import *
 import numpy as np
 
 
-def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
+def random_state_gen(num_qbits, real_valued_state=False):
     """
     Produces a quantum state vector given number of qbits
 
     :param num_qbits: int, number of qbits > 0
-    :param random_seed: int, optional parameter to set 'randomness'
     :param real_valued_state: bool, if true, produce a psi with only real valued coefficients
     :return: qiskit.quantum_info.Statevector object: an array of complex #s
     """
@@ -22,7 +21,7 @@ def random_state_gen(num_qbits, random_seed=1, real_valued_state=False):
         psi = qiskit.quantum_info.Statevector(psi_vect)
 
     else:
-        psi = qiskit.quantum_info.random_statevector(dim, seed=random_seed)
+        psi = qiskit.quantum_info.random_statevector(dim)
 
     return psi
 
@@ -168,7 +167,7 @@ def generate_raw_data_set(file_name, state_vect, shots=5000):
 
 
 def main():
-    generate_psi_data_set("3Qbit_complex,psi_1k")
+    # generate_psi_data_set("3Qbit_psi_1k")
     return
 
 
