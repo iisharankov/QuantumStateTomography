@@ -6,16 +6,23 @@ There are many different approaches to quantum state tomography [1-5]. In this p
 
 We begin with an experimental process which prepares our target state (this method is valid for mixed states as well but we consider pure states for simplicity). We produce an estimate state via the variational quantum circuit (VQC). At this point the estimated state is generated through a randomized initialization of the parameters of the VQC. The fidelity between the two states is computed physically via a SWAP test. This quantity is used to optimize the parameterization vector which in turn produces a better estimate state. Refer to figure 1 for a visual depiction of this framework as well as the specific ansatz used for the variational circuit (this diagram was taken from the [3]).
 
-![Figure 1, QML architecture!](/images/setup_framework.PNG?raw=true)
+<img src="/images/setup_framework.PNG" width="400" height="500">
+
+**Figure 1**: QML architecture
 
 
 ## Results: 
 A (5 qubit) quantum state was randomly generated to act as our unknown target state to be reconstructed. We began by varying the the depth of the VQC and plotting 1 - Fidelity between the target state and the estimate state to determine the relation ship between circuit depth and accuracy of reconstruction (summarized in figure 2a). We then fixed the circuit depth to 10 layers and plotted the loss function over each iteration to see how quickly we were able to converge to the unknown target state (summarized in figure 2b). Similar metrics were computed in the original paper and their results are summarized in figure 3 (taken from [3]). We see that the two sets of graphs agree well with eachother, thus we have successfully replicated the method described in the paper.  
 
-![Figure 2, Our Results!](/images/our_results.PNG?raw=true) 
+<img src="/images/our_results.PNG" width="500" height="250">
 
-![Figure 3, Original Results!](/images/Main_results_new.PNG?raw=true)
+**Figure 2**: a) reproduced results for measuring the difference between the target <br/> 
+state and the estimated state as we vary the circuit depth. b) reproduced results for <br/> 
+measuring the loss function over the number of optimization iterations.
 
+<img src="/images/Main_results_new.PNG" width="500" height="250">
+
+**Figure 3** : results as described in the original paper [3]. 
 
 ## Future Direction: 
 Once we have optimized our VQC parameterization, our estimate state will be identical to our target state. In order to explicitly reconstruct the target state we would need to implement our VQC on a classical simulator along with our tuned parameterization. The simulation would produce the complex coefficients that describe our reconstructed state vector.
