@@ -57,7 +57,7 @@ The code for this project is split up into 3 sections:
 
 **Kar Lok Ng** *(Statistician)*: An ex-Physics major currently in Mathematics, with the goal of majoring in Statistics. Currently throwing himself at ML and seeing what happens.
 
-**Kevin Bacabac** *(Full Stack Developer)*: (Insert Bio Here) 
+**Kevin Bacabac** *(Full Stack Developer)*: A Computer Science major who loves game dev. "Any data can look nice as a spinning rainbow."
 
 # Installation: 
 ## Installation for ML Models:
