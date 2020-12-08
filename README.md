@@ -53,7 +53,7 @@ The code for this project is split up into 3 sections:
 # Meet the Team: 
 **Jay Soni** *(Quantum Computing Lead)*: A Mathematical Physics major with a passion for quantum computing. Enjoys coding almost as much as he enjoys drinking Ice Capps! 
 
-**Ivan Sharankov** *(Machine Learning Lead)*: Astrophysics major who's looking to continue his masters in computational physics. I love programming and will jump on any hackathon or project I can find. Interested in handling big science data, machine learning applications in physics, cryptogtaphy, and network engineering.
+**Ivan Sharankov** *(Machine Learning Lead)*: Astrophysics major who's looking to continue his masters in computational physics. I love programming and will jump on any hackathon or project I can find. Interested in handling big data, machine learning applications in physics, cryptography/system security, and network engineering.
 
 **Kar Lok Ng** *(Statistician)*: An ex-Physics major currently in Mathematics, with the goal of majoring in Statistics. Currently throwing himself at ML and seeing what happens.
 
