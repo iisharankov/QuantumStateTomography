@@ -1,4 +1,4 @@
-import Complex from 'Complex';
+import Complex from 'complex';
 
 // Stores a coefficient of a quantum state
 export default class QuantumCoefficient {

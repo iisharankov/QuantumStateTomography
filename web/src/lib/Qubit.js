@@ -1,4 +1,4 @@
-import Complex from 'Complex';
+import Complex from 'complex';
 import QuantumCoefficient from './QuantumCoefficient';
 
 export class Qubit {
@@ -69,7 +69,7 @@ export class Qubit {
     const zero = new QuantumCoefficient(Number(form.r0), Number(form.i0));
     const one = new QuantumCoefficient(Number(form.r1), Number(form.i1));
 
-    return new Qubit(zero, one).normalize();
+    return new Qubit(zero, one);
   }
 }
 

@@ -1,0 +1,74 @@
+/* Import Shoelace dark theme */
+@import '@shoelace-style/shoelace/dist/themes/dark.css';
+
+/* Override with darker neutral colors for a true dark theme */
+.sl-theme-dark {
+  --sl-color-neutral-0: hsl(0, 0%, 95%);
+  --sl-color-neutral-50: hsl(0, 0%, 85%);
+  --sl-color-neutral-100: hsl(0, 0%, 75%);
+  --sl-color-neutral-200: hsl(0, 0%, 60%);
+  --sl-color-neutral-300: hsl(0, 0%, 50%);
+  --sl-color-neutral-400: hsl(0, 0%, 40%);
+  --sl-color-neutral-500: hsl(0, 0%, 30%);
+  --sl-color-neutral-600: hsl(0, 0%, 22%);
+  --sl-color-neutral-700: hsl(0, 0%, 16%);
+  --sl-color-neutral-800: hsl(0, 0%, 10%);
+  --sl-color-neutral-900: hsl(0, 0%, 6%);
+  --sl-color-neutral-950: hsl(0, 0%, 3%);
+
+  /* Darker panel/surface colors */
+  --sl-panel-background-color: var(--sl-color-neutral-900);
+  --sl-panel-border-color: var(--sl-color-neutral-800);
+}
+
+/* App-specific custom properties only */
+:root {
+  --app-gap: clamp(1rem, 2vw, 2rem);
+  --app-max-width: 1400px;
+  --canvas-max-size: 500px;
+}
+
+/* Apply dark theme globally */
+body {
+  background-color: var(--sl-color-neutral-950);
+  color: var(--sl-color-neutral-0);
+  font-family: var(--sl-font-sans);
+  font-size: var(--sl-font-size-medium);
+  margin: 0;
+  padding: var(--app-gap);
+}
+
+/* Responsive layout with container queries */
+quantum-app {
+  display: block;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  container-type: inline-size;
+}
+
+/* Canvas fluid sizing with aspect ratio lock */
+canvas {
+  width: 100%;
+  max-width: var(--canvas-max-size);
+  aspect-ratio: 1;
+  border: 1px solid var(--sl-color-neutral-700);
+  border-radius: var(--sl-border-radius-medium);
+}
+
+/* Typography */
+h2 { font-size: 1.5rem; font-weight: 400; margin: 1em 0; }
+h3 { font-size: 1.25rem; font-weight: 400; margin: 0.75em 0; }
+p { line-height: 1.6; margin: 0.5em 0; }
+
+/* Responsive grid: stacked on narrow, side-by-side on wide */
+.sections-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--app-gap);
+}
+
+@container (min-width: 900px) {
+  .sections-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

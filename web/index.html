@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" class="sl-theme-dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Using machine learning to predict multiqubit systems." />
+    <title>Quantum State Tomography Demo</title>
+
+    <link rel="stylesheet" href="/src/styles/theme.css" />
+  </head>
+  <body>
+    <quantum-app></quantum-app>
+
+    <script type="module">
+      import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+      setBasePath('/node_modules/@shoelace-style/shoelace/dist/');
+    </script>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

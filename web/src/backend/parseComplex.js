@@ -1,4 +1,4 @@
-import Complex from 'Complex';
+import Complex from 'complex';
 
 function parseComplex(reply) {
   // Parse data for Quantum Machine Learning demo
