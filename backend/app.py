@@ -9,13 +9,16 @@ import traceback
 import api
 import qml
 
-app = Flask(__name__)
 flask_cors.CORS(app)
 
 
-@app.route('/', methods=['GET'])
+app = Flask(__name__,
+            static_folder='../web/dist',
+            static_url_path='')
+
+@app.route('/')
 def main_page():
-    return render_template('base.html')
+    return app.send_static_file('index.html')
 
 
 @app.route('/multivector', methods=['POST'])
